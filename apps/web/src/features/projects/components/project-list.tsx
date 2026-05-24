@@ -59,6 +59,7 @@ export function ProjectList() {
               variant="ghost"
               size="icon"
               title="Delete project"
+              aria-label={`Delete project ${project.name}`}
               onClick={() => handleDelete(project.id)}
             >
               <Trash2 className="size-4 text-danger" />

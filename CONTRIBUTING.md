@@ -53,6 +53,7 @@ The guard runs automatically in `yarn lint`.
 - Every form control (`input`, `select`, `textarea`, checkbox) must have an explicit associated label (`label` + `htmlFor`/`id`) or an accessible equivalent for compact UIs (`sr-only` label).
 - Provide keyboard-friendly alternatives for drag/drop interactions.
 - Keep labels and call-to-action text specific.
+- Use `docs/accessibility-checklist.md` as the default pre-merge a11y QA baseline for UI changes.
 
 ## AI contribution protocol
 

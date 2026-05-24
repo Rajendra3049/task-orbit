@@ -113,7 +113,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-colors",
+                  "flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                   isActive ? "bg-surface-elevated text-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
@@ -127,14 +127,19 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         <div className="mt-8 rounded-2xl border border-border bg-surface p-3">
           <p className="text-xs text-muted-foreground">Mode</p>
           <button
-            className="mt-2 w-full rounded-xl border border-border bg-surface-elevated p-2 text-left text-sm"
+            className="mt-2 w-full rounded-xl border border-border bg-surface-elevated p-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={() => void handleModeToggle()}
             disabled={saveMode.isPending}
+            aria-pressed={mode === "office"}
             title="Office mode hides personal items. Personal mode shows all."
           >
             {saveMode.isPending ? "Updating mode..." : mode === "office" ? "Office Mode" : "Personal Mode"}
           </button>
-          {modeSaveError ? <p className="mt-2 text-xs text-warning">{modeSaveError}</p> : null}
+          {modeSaveError ? (
+            <p className="mt-2 text-xs text-warning" role="status" aria-live="polite">
+              {modeSaveError}
+            </p>
+          ) : null}
         </div>
       </aside>
 
@@ -155,7 +160,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
                 }
               }}
               placeholder="Type and press Enter (tasks, today, projects...)"
-              className="min-w-[260px] bg-transparent outline-none placeholder:text-muted-foreground"
+              className="min-w-[260px] rounded-md bg-transparent px-1 outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/40"
               aria-label="Global quick navigation search"
             />
           </div>

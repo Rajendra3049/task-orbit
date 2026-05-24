@@ -87,8 +87,9 @@ export function AssistantPanel() {
           {suggestions.map((suggestion) => (
             <button
               key={suggestion}
-              className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-left text-xs text-muted-foreground hover:text-foreground"
+              className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-left text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               onClick={() => setCommand(suggestion)}
+              aria-label={`Use suggestion: ${suggestion}`}
             >
               {suggestion}
             </button>

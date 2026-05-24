@@ -180,16 +180,18 @@ export function LoginForm({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-surface p-1">
+        <div className="grid grid-cols-2 gap-2 rounded-xl border border-border bg-surface p-1" role="tablist" aria-label="Authentication mode">
           <button
             type="button"
             className={`rounded-lg px-3 py-2 text-sm transition ${
               mode === "sign-in" ? "bg-surface-elevated text-foreground" : "text-muted-foreground"
-            }`}
+            } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
             onClick={() => {
               setMode("sign-in");
               setPassword("");
             }}
+            role="tab"
+            aria-selected={mode === "sign-in"}
           >
             Sign in
           </button>
@@ -197,8 +199,10 @@ export function LoginForm({
             type="button"
             className={`rounded-lg px-3 py-2 text-sm transition ${
               mode === "create-account" ? "bg-surface-elevated text-foreground" : "text-muted-foreground"
-            }`}
+            } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
             onClick={() => setMode("create-account")}
+            role="tab"
+            aria-selected={mode === "create-account"}
           >
             Create account
           </button>
