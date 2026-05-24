@@ -33,6 +33,13 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
     }
   }, [persistedMode, setMode]);
 
+  useEffect(() => {
+    // Prefetch frequent routes to make navigation feel instant.
+    primaryNavigation.forEach((item) => {
+      router.prefetch(item.href);
+    });
+  }, [router]);
+
   const handleSignOut = async () => {
     try {
       await signOut.mutateAsync();
@@ -126,9 +133,9 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         </header>
 
         <motion.main
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
+          initial={{ opacity: 0.96 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.12, ease: "easeOut" }}
         >
           {children}
         </motion.main>
