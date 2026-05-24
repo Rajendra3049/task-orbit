@@ -142,7 +142,11 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         <header className="glass sticky top-4 z-10 flex items-center justify-between rounded-[24px] px-4 py-3">
           <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-muted-foreground">
             <Search className="size-4" />
+            <label htmlFor="global-nav-search" className="sr-only">
+              Global navigation search
+            </label>
             <input
+              id="global-nav-search"
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
               onKeyDown={(event) => {

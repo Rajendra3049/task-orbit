@@ -217,29 +217,47 @@ export function LoginForm({
           }}
         >
           {mode === "create-account" ? (
-            <Input
-              type="text"
-              placeholder="Full name"
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-              required
-            />
+            <div className="space-y-1">
+              <label htmlFor="full-name" className="text-xs font-medium text-muted-foreground">
+                Full name
+              </label>
+              <Input
+                id="full-name"
+                type="text"
+                placeholder="Full name"
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+                required
+              />
+            </div>
           ) : null}
 
-          <Input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
+          <div className="space-y-1">
+            <label htmlFor="auth-email" className="text-xs font-medium text-muted-foreground">
+              Email address
+            </label>
+            <Input
+              id="auth-email"
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="auth-password" className="text-xs font-medium text-muted-foreground">
+              Password
+            </label>
+            <Input
+              id="auth-password"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading

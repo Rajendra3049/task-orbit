@@ -28,19 +28,36 @@ export function ProjectForm() {
     <Card className="space-y-4">
       <h2 className="text-lg font-semibold">Create project</h2>
       <form className="grid gap-3 md:grid-cols-2" onSubmit={onSubmit}>
-        <Input
-          className="md:col-span-2"
-          placeholder="e.g., Mobile app launch"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          required
-        />
-        <Input
-          placeholder="Outcome, owner, or deadline context"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-        />
+        <div className="md:col-span-2">
+          <label htmlFor="project-name" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Project name
+          </label>
+          <Input
+            id="project-name"
+            className="md:col-span-2"
+            placeholder="e.g., Mobile app launch"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="project-description" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Description
+          </label>
+          <Input
+            id="project-description"
+            placeholder="Outcome, owner, or deadline context"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="project-context" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Context
+          </label>
         <select
+          id="project-context"
           className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
           value={context}
           onChange={(event) => setContext(event.target.value as "work" | "personal" | "general")}
@@ -49,6 +66,7 @@ export function ProjectForm() {
           <option value="personal">Personal</option>
           <option value="general">General</option>
         </select>
+        </div>
         <Button type="submit" className="md:col-span-2" disabled={createProject.isPending}>
           {createProject.isPending ? "Creating..." : "Create project"}
         </Button>

@@ -39,8 +39,19 @@ export function TaskCard({ task }: TaskCardProps) {
       <div className="flex items-start justify-between gap-3">
         {isEditing ? (
           <div className="w-full space-y-2">
-            <Input value={editedTitle} onChange={(event) => setEditedTitle(event.target.value)} />
-            <Input type="date" value={editedDueDate} onChange={(event) => setEditedDueDate(event.target.value)} />
+            <label htmlFor={`edit-task-title-${task.id}`} className="sr-only">
+              Task title
+            </label>
+            <Input id={`edit-task-title-${task.id}`} value={editedTitle} onChange={(event) => setEditedTitle(event.target.value)} />
+            <label htmlFor={`edit-task-due-date-${task.id}`} className="sr-only">
+              Due date
+            </label>
+            <Input
+              id={`edit-task-due-date-${task.id}`}
+              type="date"
+              value={editedDueDate}
+              onChange={(event) => setEditedDueDate(event.target.value)}
+            />
           </div>
         ) : (
           <div className="space-y-2">

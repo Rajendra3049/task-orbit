@@ -97,7 +97,11 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
       </div>
       <form className="grid gap-3 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="md:col-span-2">
+          <label htmlFor={`task-title-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+            Task title
+          </label>
           <Input
+            id={`task-title-${variant}`}
             placeholder={mode === "office" ? "e.g., Prepare Q2 roadmap draft" : "e.g., Book dentist appointment"}
             {...form.register("title")}
           />
@@ -107,10 +111,17 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
         </div>
 
         <div title="Set a due date in your local timezone">
-          <Input type="date" {...form.register("dueDate")} />
+          <label htmlFor={`task-due-date-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+            Due date
+          </label>
+          <Input id={`task-due-date-${variant}`} type="date" {...form.register("dueDate")} />
         </div>
         <div>
+          <label htmlFor={`task-estimated-minutes-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+            Estimated minutes
+          </label>
           <Input
+            id={`task-estimated-minutes-${variant}`}
             type="number"
             min={5}
             max={480}
@@ -120,7 +131,11 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
         </div>
 
         <div>
+          <label htmlFor={`task-priority-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+            Priority
+          </label>
           <select
+            id={`task-priority-${variant}`}
             className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
             {...form.register("priority")}
           >
@@ -130,7 +145,11 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
           </select>
         </div>
         <div>
+          <label htmlFor={`task-context-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+            Context
+          </label>
           <select
+            id={`task-context-${variant}`}
             className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
             {...form.register("context")}
           >
@@ -143,7 +162,11 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
         {variant === "full" || variant === "collapsible" ? (
           <>
             <div title="Optional: link this task to a project">
+              <label htmlFor={`task-project-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+                Project
+              </label>
               <select
+                id={`task-project-${variant}`}
                 className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
                 {...form.register("projectId")}
               >
@@ -158,14 +181,19 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
 
             <label className="flex items-center gap-2 rounded-[var(--radius-input)] border border-border bg-surface px-3 py-2 text-sm">
               <input
+                id={`task-is-recurring-${variant}`}
                 type="checkbox"
                 title="When complete, the next occurrence is auto-created"
                 {...form.register("isRecurring")}
               />
-              Recurring task
+              <span>Recurring task</span>
             </label>
             <div>
+              <label htmlFor={`task-recurrence-pattern-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+                Recurrence pattern
+              </label>
               <select
+                id={`task-recurrence-pattern-${variant}`}
                 className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
                 {...form.register("recurrencePattern")}
               >

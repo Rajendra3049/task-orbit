@@ -57,7 +57,11 @@ export function WeeklyPlannerBoard() {
         Tip: Drag a task into a day column to schedule. Keyboard fallback is available below. Dates use your local timezone.
       </p>
       <div className="grid gap-2 md:grid-cols-3">
+        <label htmlFor="planner-task-select" className="sr-only">
+          Select task to reschedule
+        </label>
         <select
+          id="planner-task-select"
           value={selectedTaskId}
           onChange={(event) => setSelectedTaskId(event.target.value)}
           className="h-10 rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
@@ -70,7 +74,11 @@ export function WeeklyPlannerBoard() {
             </option>
           ))}
         </select>
+        <label htmlFor="planner-day-select" className="sr-only">
+          Select day for selected task
+        </label>
         <select
+          id="planner-day-select"
           value={selectedDayIso}
           onChange={(event) => setSelectedDayIso(event.target.value)}
           className="h-10 rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"

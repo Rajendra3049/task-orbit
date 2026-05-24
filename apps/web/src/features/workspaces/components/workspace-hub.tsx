@@ -20,15 +20,31 @@ export function WorkspaceHub() {
           Collaboration foundation: create private or team workspace and prepare for member invites.
         </p>
         <div className="grid gap-3 md:grid-cols-3">
-          <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g., Product Team FY26" />
-          <select
-            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-            value={visibility}
-            onChange={(event) => setVisibility(event.target.value as "private" | "team")}
-          >
-            <option value="private">Private</option>
-            <option value="team">Team</option>
-          </select>
+          <div>
+            <label htmlFor="workspace-name" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Workspace name
+            </label>
+            <Input
+              id="workspace-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="e.g., Product Team FY26"
+            />
+          </div>
+          <div>
+            <label htmlFor="workspace-visibility" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Visibility
+            </label>
+            <select
+              id="workspace-visibility"
+              className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+              value={visibility}
+              onChange={(event) => setVisibility(event.target.value as "private" | "team")}
+            >
+              <option value="private">Private</option>
+              <option value="team">Team</option>
+            </select>
+          </div>
           <Button
             onClick={() =>
               createWorkspace.mutate({

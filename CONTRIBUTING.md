@@ -50,6 +50,7 @@ The guard runs automatically in `yarn lint`.
 
 - Every async surface must handle loading, empty, error, and success states.
 - Use clear placeholders and helper text.
+- Every form control (`input`, `select`, `textarea`, checkbox) must have an explicit associated label (`label` + `htmlFor`/`id`) or an accessible equivalent for compact UIs (`sr-only` label).
 - Provide keyboard-friendly alternatives for drag/drop interactions.
 - Keep labels and call-to-action text specific.
 

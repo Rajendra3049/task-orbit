@@ -23,30 +23,48 @@ export function HabitForm() {
     <Card className="space-y-4">
       <h2 className="text-lg font-semibold">Create habit</h2>
       <form className="grid gap-3 md:grid-cols-3" onSubmit={onSubmit}>
-        <Input
-          className="md:col-span-3"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="e.g., 30 min deep work"
-          required
-        />
-        <select
-          className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-          value={context}
-          onChange={(event) => setContext(event.target.value as "work" | "personal" | "general")}
-        >
-          <option value="work">Work</option>
-          <option value="personal">Personal</option>
-          <option value="general">General</option>
-        </select>
-        <select
-          className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-          value={frequency}
-          onChange={(event) => setFrequency(event.target.value as "daily" | "weekly")}
-        >
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-        </select>
+        <div className="md:col-span-3">
+          <label htmlFor="habit-name" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Habit name
+          </label>
+          <Input
+            id="habit-name"
+            className="md:col-span-3"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="e.g., 30 min deep work"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="habit-context" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Context
+          </label>
+          <select
+            id="habit-context"
+            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+            value={context}
+            onChange={(event) => setContext(event.target.value as "work" | "personal" | "general")}
+          >
+            <option value="work">Work</option>
+            <option value="personal">Personal</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="habit-frequency" className="mb-1 block text-xs font-medium text-muted-foreground">
+            Frequency
+          </label>
+          <select
+            id="habit-frequency"
+            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+            value={frequency}
+            onChange={(event) => setFrequency(event.target.value as "daily" | "weekly")}
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
         <Button type="submit" disabled={createHabit.isPending}>
           {createHabit.isPending ? "Creating..." : "Create habit"}
         </Button>

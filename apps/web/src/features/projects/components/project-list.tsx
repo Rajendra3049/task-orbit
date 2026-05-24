@@ -67,8 +67,22 @@ export function ProjectList() {
 
           {editingProjectId === project.id ? (
             <div className="space-y-2">
-              <Input value={editedName} onChange={(event) => setEditedName(event.target.value)} />
-              <Input value={editedDescription} onChange={(event) => setEditedDescription(event.target.value)} />
+              <label htmlFor={`edit-project-name-${project.id}`} className="sr-only">
+                Project name
+              </label>
+              <Input
+                id={`edit-project-name-${project.id}`}
+                value={editedName}
+                onChange={(event) => setEditedName(event.target.value)}
+              />
+              <label htmlFor={`edit-project-description-${project.id}`} className="sr-only">
+                Project description
+              </label>
+              <Input
+                id={`edit-project-description-${project.id}`}
+                value={editedDescription}
+                onChange={(event) => setEditedDescription(event.target.value)}
+              />
               <div className="flex gap-2">
                 <Button
                   onClick={() =>

@@ -66,7 +66,11 @@ export function AssistantPanel() {
         <p className="text-sm text-muted-foreground">
           Natural-language command parser for quick capture and prioritization.
         </p>
+        <label htmlFor="assistant-command" className="text-xs font-medium text-muted-foreground">
+          Task command
+        </label>
         <Input
+          id="assistant-command"
           value={command}
           onChange={(event) => setCommand(event.target.value)}
           placeholder='Try: "Plan my top 3 tasks for tomorrow"'

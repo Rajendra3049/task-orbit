@@ -25,24 +25,51 @@ export function GoalBoard() {
       <Card className="space-y-3">
         <h2 className="text-lg font-semibold">Create goal</h2>
         <div className="grid gap-3 md:grid-cols-2">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Publish 12 articles" />
-          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Why this goal matters" />
-          <Input
-            type="number"
-            min={1}
-            title="Target value should be a measurable milestone"
-            value={target}
-            onChange={(e) => setTarget(Number(e.target.value || 1))}
-          />
-          <select
-            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-            value={context}
-            onChange={(e) => setContext(e.target.value as "work" | "personal" | "general")}
-          >
-            <option value="work">Work</option>
-            <option value="personal">Personal</option>
-            <option value="general">General</option>
-          </select>
+          <div>
+            <label htmlFor="goal-title" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Goal title
+            </label>
+            <Input id="goal-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Publish 12 articles" />
+          </div>
+          <div>
+            <label htmlFor="goal-description" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Description
+            </label>
+            <Input
+              id="goal-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Why this goal matters"
+            />
+          </div>
+          <div>
+            <label htmlFor="goal-target" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Target value
+            </label>
+            <Input
+              id="goal-target"
+              type="number"
+              min={1}
+              title="Target value should be a measurable milestone"
+              value={target}
+              onChange={(e) => setTarget(Number(e.target.value || 1))}
+            />
+          </div>
+          <div>
+            <label htmlFor="goal-context" className="mb-1 block text-xs font-medium text-muted-foreground">
+              Context
+            </label>
+            <select
+              id="goal-context"
+              className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+              value={context}
+              onChange={(e) => setContext(e.target.value as "work" | "personal" | "general")}
+            >
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="general">General</option>
+            </select>
+          </div>
           <Button
             className="md:col-span-2"
             onClick={() =>

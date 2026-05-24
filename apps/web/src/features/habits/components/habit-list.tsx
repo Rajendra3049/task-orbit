@@ -56,7 +56,16 @@ export function HabitList() {
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{habit.context}</p>
               {editingHabitId === habit.id ? (
-                <Input value={editedName} onChange={(event) => setEditedName(event.target.value)} />
+                <>
+                  <label htmlFor={`edit-habit-name-${habit.id}`} className="sr-only">
+                    Habit name
+                  </label>
+                  <Input
+                    id={`edit-habit-name-${habit.id}`}
+                    value={editedName}
+                    onChange={(event) => setEditedName(event.target.value)}
+                  />
+                </>
               ) : (
                 <h3 className="text-lg font-semibold">{habit.name}</h3>
               )}

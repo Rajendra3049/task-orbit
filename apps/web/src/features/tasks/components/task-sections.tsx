@@ -30,7 +30,11 @@ export function TaskSections({ variant }: TaskSectionsProps) {
 
   return (
     <div className="space-y-4">
+      <label htmlFor={`task-search-${variant}`} className="sr-only">
+        Search tasks
+      </label>
       <Input
+        id={`task-search-${variant}`}
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.target.value)}
         placeholder="Search by title, context, or priority..."
