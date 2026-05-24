@@ -41,6 +41,7 @@ export function WeeklyPlannerBoard() {
   const unscheduledTasks = scoped.filter((task) => !task.dueDate);
 
   const handleDrop = (taskId: string, dayIso: string | null) => {
+    // dayIso null means "unscheduled" and clears due date intentionally.
     updateTask.mutate({
       taskId,
       payload: {

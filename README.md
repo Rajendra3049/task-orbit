@@ -1,18 +1,23 @@
 # TaskOrbit
 
-TaskOrbit is an AI-first productivity operating system for life and work.
+TaskOrbit is a fullstack productivity operating system that combines tasks, projects, habits, goals, calendar planning, analytics, workspace foundations, and AI-assisted capture in a single app.
 
-## Current status
+## Product modules currently implemented
 
-This repository now includes a working **Phase 1 MVP foundation**:
+- Authentication and email verification
+- Dashboard, inbox, tasks, today views
+- Projects, habits, goals
+- Calendar agenda + weekly planner drag/drop scheduling
+- Analytics overview and AI command panel
+- Workspace foundation and pricing page
+- Settings with mode persistence (personal/office)
 
-- Monorepo setup with Turbo + Yarn workspaces
-- Next.js 16 web app in `apps/web`
-- Feature-driven architecture
-- Premium dark-first shell UI with personal/office mode toggle
-- Task vertical slice (create/list/toggle complete)
-- Dashboard + Today + Tasks pages
-- Supabase schema and RLS starter SQL
+## Tech stack
+
+- Frontend: Next.js App Router, TypeScript, Tailwind CSS
+- State/data: TanStack Query, Zustand
+- Backend: Supabase Auth + Postgres + Realtime + RLS
+- Tooling: Yarn workspaces, Turbo, ESLint
 
 ## Quick start
 
@@ -32,18 +37,26 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-## Apply database schema
+## Database setup
 
-Run `apps/web/supabase/schema.sql` in your Supabase SQL editor.
+Run `apps/web/supabase/schema.sql` in Supabase SQL Editor.
 
 ## Supabase auth setup
 
-- In Supabase Auth, enable Email + Password and Google (optional)
+- Enable Email + Password in Supabase Auth providers
 - Add redirect URL: `http://localhost:3000/auth/callback`
 
-## Commands
+## Development commands
 
-- `yarn dev` - run all workspace dev servers
-- `yarn lint` - lint workspace
-- `yarn typecheck` - TypeScript checks
+- `yarn guard:docs` - ensure docs/context updated for code changes
+- `yarn dev` - run development server
+- `yarn lint` - lint project
+- `yarn typecheck` - run TypeScript checks
 - `yarn build` - production build
+
+## Contribution docs
+
+- Project contribution process: `CONTRIBUTING.md`
+- High-level architecture: `docs/ARCHITECTURE.md`
+- Delivery roadmap and phase view: `docs/implementation-plan.md`
+- Feature/module context docs: `apps/web/src/**/README.md` and `CONTEXT.md`

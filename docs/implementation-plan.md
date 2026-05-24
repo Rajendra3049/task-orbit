@@ -21,26 +21,28 @@ TaskOrbit is delivered using vertical slices to keep code stable and AI-friendly
 - Feature-driven Next.js web structure
 - Dashboard shell and navigation
 - Personal/Office mode toggle with UI adaptation
-- Task CRUD MVP (create/list/toggle complete with persisted local fallback)
-- Today page and dashboard summary widgets
+- Supabase-backed auth, protected routes, and verification UX
+- Task CRUD + inbox/today/overdue/upcoming/completed views
+- Projects, habits, goals, analytics, assistant, and workspace foundations
+- Calendar agenda + weekly planner scheduling interactions
 - Supabase schema and RLS starter script
 
 ## Next milestones
 
-### Milestone A - Supabase integration hardening
+### Milestone A - Production hardening
 
-- Switch task service from local storage to Supabase queries/mutations
-- Add auth middleware and protected routes
-- Persist mode in `settings` table
+- Expand automated test coverage (unit + integration + e2e)
+- Add robust undo flows and activity logs for destructive changes
+- Add role/invite lifecycle for collaboration
 
-### Milestone B - Productivity workflows
+### Milestone B - Integrations and automation
 
-- Inbox capture flow
-- Overdue grouping and smart suggestions
-- Notification center and browser reminders
+- Wire real integration OAuth flows and sync jobs
+- Add recurring automation scheduler through Supabase jobs
+- Add notification delivery channels (email/push/in-app)
 
-### Milestone C - Analytics and intelligence
+### Milestone C - Advanced intelligence
 
-- Productivity score widgets
-- Weekly trends chart
-- AI prompt/action layer for natural language task parsing
+- Connect assistant to LLM provider with preview and confidence states
+- Add date-range analytics and trend exploration
+- Add recommendation engine for scheduling and prioritization

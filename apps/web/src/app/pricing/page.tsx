@@ -11,7 +11,9 @@ export default function PricingPage() {
     <main className="mx-auto max-w-5xl space-y-4 p-6">
       <Card>
         <h1 className="text-2xl font-semibold">TaskOrbit pricing</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Monetization phase scaffold with upgrade-ready plan model.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Flexible plans for individuals, professionals, and teams with transparent feature access.
+        </p>
       </Card>
       <div className="grid gap-3 md:grid-cols-3">
         {plans.map((plan) => (

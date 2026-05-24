@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "lint": "turbo lint",
+    "guard:docs": "node scripts/enforce-doc-updates.mjs",
+    "lint": "yarn guard:docs && turbo lint",
     "typecheck": "turbo typecheck",
     "format": "turbo format"
   },

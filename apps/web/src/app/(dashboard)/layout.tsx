@@ -61,6 +61,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
       await saveMode.mutateAsync(nextMode);
       toast.success(`${nextMode === "office" ? "Office" : "Personal"} mode enabled.`);
     } catch {
+      // Roll back UI immediately if persistence fails.
       setMode(mode);
       setModeSaveError("Could not save workspace mode. Your previous mode is restored.");
     }

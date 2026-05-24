@@ -42,6 +42,7 @@ function getNextRecurringDueDate(
   dueDate: string | null,
   recurrencePattern: "daily" | "weekly" | "monthly" | null,
 ) {
+  // Use existing due date as anchor so recurring cadence stays predictable.
   const baseDate = dueDate ? new Date(dueDate) : new Date();
   switch (recurrencePattern) {
     case "daily":
@@ -176,6 +177,7 @@ export const taskService = {
     const { supabase } = await getSupabaseUserId();
     const updatePayload: Record<string, unknown> = {};
 
+    // Build partial update payload to avoid overwriting fields accidentally.
     if (Object.prototype.hasOwnProperty.call(payload, "title")) {
       updatePayload.title = payload.title;
     }
