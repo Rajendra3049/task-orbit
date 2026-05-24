@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useProjects } from "@/features/projects/hooks/use-projects";
 import { useCreateTask } from "@/features/tasks/hooks/use-tasks";
 import {
   createTaskSchema,
@@ -15,6 +16,7 @@ import { useUiStore } from "@/shared/store/ui-store";
 
 export function TaskForm() {
   const mode = useUiStore((state) => state.mode);
+  const { data: projects } = useProjects();
   const createTask = useCreateTask();
   const form = useForm<CreateTaskSchemaValues>({
     resolver: zodResolver(createTaskSchema),
@@ -24,6 +26,9 @@ export function TaskForm() {
       context: mode === "office" ? "work" : "personal",
       estimatedMinutes: 30,
       dueDate: "",
+      projectId: "",
+      isRecurring: false,
+      recurrencePattern: "weekly",
     },
   });
 
@@ -32,7 +37,10 @@ export function TaskForm() {
   }, [form, mode]);
 
   const onSubmit = async (values: CreateTaskSchemaValues) => {
-    await createTask.mutateAsync(values);
+    await createTask.mutateAsync({
+      ...values,
+      projectId: values.projectId || undefined,
+    });
     form.reset();
   };
 
@@ -65,6 +73,20 @@ export function TaskForm() {
         <div>
           <select
             className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+            {...form.register("projectId")}
+          >
+            <option value="">No project</option>
+            {(projects ?? []).map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <select
+            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
             {...form.register("priority")}
           >
             <option value="low">Low priority</option>
@@ -80,6 +102,21 @@ export function TaskForm() {
             <option value="work">Work</option>
             <option value="personal">Personal</option>
             <option value="general">General</option>
+          </select>
+        </div>
+
+        <label className="flex items-center gap-2 rounded-[var(--radius-input)] border border-border bg-surface px-3 py-2 text-sm">
+          <input type="checkbox" {...form.register("isRecurring")} />
+          Recurring task
+        </label>
+        <div>
+          <select
+            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+            {...form.register("recurrencePattern")}
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
           </select>
         </div>
 

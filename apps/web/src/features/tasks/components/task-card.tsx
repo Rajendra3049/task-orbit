@@ -38,7 +38,7 @@ export function TaskCard({ task }: TaskCardProps) {
           {task.dueDate
             ? format(new Date(task.dueDate), "EEE, MMM d")
             : "No due date"}{" "}
-          · {task.estimatedMinutes}m
+          · {task.estimatedMinutes}m {task.isRecurring ? `· recurring ${task.recurrencePattern}` : ""}
         </p>
         <div className="flex items-center gap-2">
           <Button

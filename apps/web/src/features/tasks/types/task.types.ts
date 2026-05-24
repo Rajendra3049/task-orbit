@@ -10,6 +10,9 @@ export type Task = {
   context: TaskContext;
   dueDate: string | null;
   estimatedMinutes: number;
+  projectId: string | null;
+  isRecurring: boolean;
+  recurrencePattern: "daily" | "weekly" | "monthly" | null;
   isCompleted: boolean;
   createdAt: string;
   updatedAt: string;
@@ -21,4 +24,7 @@ export type CreateTaskInput = {
   context: TaskContext;
   dueDate?: string;
   estimatedMinutes: number;
+  projectId?: string;
+  isRecurring?: boolean;
+  recurrencePattern?: "daily" | "weekly" | "monthly";
 };

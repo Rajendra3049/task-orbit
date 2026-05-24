@@ -6,6 +6,9 @@ export const createTaskSchema = z.object({
   context: z.enum(["work", "personal", "general"]),
   dueDate: z.string().optional(),
   estimatedMinutes: z.number().min(5, "Minimum estimate is 5 minutes.").max(480, "Maximum estimate is 480 minutes."),
+  projectId: z.string().optional(),
+  isRecurring: z.boolean().optional(),
+  recurrencePattern: z.enum(["daily", "weekly", "monthly"]).optional(),
 });
 
-export type CreateTaskSchemaValues = z.infer<typeof createTaskSchema>;
+export type CreateTaskSchemaValues = z.input<typeof createTaskSchema>;

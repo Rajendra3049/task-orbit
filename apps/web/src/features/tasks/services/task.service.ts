@@ -11,6 +11,9 @@ type TaskRow = {
   context: Task["context"];
   due_date: string | null;
   estimated_minutes: number;
+  project_id: string | null;
+  is_recurring: boolean;
+  recurrence_pattern: "daily" | "weekly" | "monthly" | null;
   is_completed: boolean;
   created_at: string;
   updated_at: string;
@@ -25,6 +28,9 @@ function mapTaskRow(row: TaskRow): Task {
     context: row.context,
     dueDate: row.due_date,
     estimatedMinutes: row.estimated_minutes,
+    projectId: row.project_id,
+    isRecurring: row.is_recurring,
+    recurrencePattern: row.recurrence_pattern,
     isCompleted: row.is_completed,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -54,7 +60,9 @@ export const taskService = {
     const { supabase } = await getSupabaseUserId();
     const { data, error } = await supabase
       .from("tasks")
-      .select("id, title, status, priority, context, due_date, estimated_minutes, is_completed, created_at, updated_at")
+      .select(
+        "id, title, status, priority, context, due_date, estimated_minutes, project_id, is_recurring, recurrence_pattern, is_completed, created_at, updated_at",
+      )
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -75,9 +83,14 @@ export const taskService = {
         context: payload.context,
         due_date: payload.dueDate || null,
         estimated_minutes: payload.estimatedMinutes,
+        project_id: payload.projectId || null,
+        is_recurring: payload.isRecurring ?? false,
+        recurrence_pattern: payload.isRecurring ? payload.recurrencePattern || "weekly" : null,
         is_completed: false,
       })
-      .select("id, title, status, priority, context, due_date, estimated_minutes, is_completed, created_at, updated_at")
+      .select(
+        "id, title, status, priority, context, due_date, estimated_minutes, project_id, is_recurring, recurrence_pattern, is_completed, created_at, updated_at",
+      )
       .single();
 
     if (error) {
@@ -130,9 +143,14 @@ export const taskService = {
         context: payload.context,
         due_date: payload.dueDate,
         estimated_minutes: payload.estimatedMinutes,
+        project_id: payload.projectId,
+        is_recurring: payload.isRecurring,
+        recurrence_pattern: payload.isRecurring ? payload.recurrencePattern : null,
       })
       .eq("id", taskId)
-      .select("id, title, status, priority, context, due_date, estimated_minutes, is_completed, created_at, updated_at")
+      .select(
+        "id, title, status, priority, context, due_date, estimated_minutes, project_id, is_recurring, recurrence_pattern, is_completed, created_at, updated_at",
+      )
       .single();
 
     if (error) {
