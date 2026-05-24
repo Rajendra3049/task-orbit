@@ -38,8 +38,12 @@ export function ProjectForm() {
             placeholder="e.g., Mobile app launch"
             value={name}
             onChange={(event) => setName(event.target.value)}
+            aria-describedby="project-name-help"
             required
           />
+          <p id="project-name-help" className="mt-1 text-xs text-muted-foreground">
+            Use a name your team can recognize quickly.
+          </p>
         </div>
         <div>
           <label htmlFor="project-description" className="mb-1 block text-xs font-medium text-muted-foreground">
@@ -61,11 +65,15 @@ export function ProjectForm() {
           className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
           value={context}
           onChange={(event) => setContext(event.target.value as "work" | "personal" | "general")}
+          aria-describedby="project-context-help"
         >
           <option value="work">Work</option>
           <option value="personal">Personal</option>
           <option value="general">General</option>
         </select>
+        <p id="project-context-help" className="mt-1 text-xs text-muted-foreground">
+          Context controls where the project appears in mode-based views.
+        </p>
         </div>
         <Button type="submit" className="md:col-span-2" disabled={createProject.isPending}>
           {createProject.isPending ? "Creating..." : "Create project"}

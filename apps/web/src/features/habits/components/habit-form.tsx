@@ -33,8 +33,12 @@ export function HabitForm() {
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="e.g., 30 min deep work"
+            aria-describedby="habit-name-help"
             required
           />
+          <p id="habit-name-help" className="mt-1 text-xs text-muted-foreground">
+            Make it specific and measurable so completion is unambiguous.
+          </p>
         </div>
         <div>
           <label htmlFor="habit-context" className="mb-1 block text-xs font-medium text-muted-foreground">
@@ -60,10 +64,14 @@ export function HabitForm() {
             className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
             value={frequency}
             onChange={(event) => setFrequency(event.target.value as "daily" | "weekly")}
+            aria-describedby="habit-frequency-help"
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
           </select>
+          <p id="habit-frequency-help" className="mt-1 text-xs text-muted-foreground">
+            Pick how often you want to complete this habit.
+          </p>
         </div>
         <Button type="submit" disabled={createHabit.isPending}>
           {createHabit.isPending ? "Creating..." : "Create habit"}

@@ -66,6 +66,7 @@ export function WeeklyPlannerBoard() {
           onChange={(event) => setSelectedTaskId(event.target.value)}
           className="h-10 rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
           aria-label="Select a task to reschedule"
+          aria-describedby="planner-controls-help"
         >
           <option value="">Select task</option>
           {scoped.map((task) => (
@@ -83,6 +84,7 @@ export function WeeklyPlannerBoard() {
           onChange={(event) => setSelectedDayIso(event.target.value)}
           className="h-10 rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
           aria-label="Select a day for selected task"
+          aria-describedby="planner-controls-help"
         >
           <option value="unscheduled">Unscheduled</option>
           {days.map((day) => (
@@ -102,6 +104,9 @@ export function WeeklyPlannerBoard() {
           Apply schedule
         </Button>
       </div>
+      <p id="planner-controls-help" className="text-xs text-muted-foreground">
+        Choose a task and day, then apply schedule to move or unschedule it.
+      </p>
       <div
         className={`rounded-xl border border-dashed bg-surface p-3 ${
           activeDropZone === "unscheduled" ? "border-primary" : "border-border"

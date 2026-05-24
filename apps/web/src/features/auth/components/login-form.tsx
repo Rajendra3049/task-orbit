@@ -227,8 +227,12 @@ export function LoginForm({
                 placeholder="Full name"
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
+                aria-describedby="auth-name-help"
                 required
               />
+              <p id="auth-name-help" className="text-xs text-muted-foreground">
+                Use your real name so your workspace profile is personalized.
+              </p>
             </div>
           ) : null}
 
@@ -242,8 +246,12 @@ export function LoginForm({
               placeholder="Email address"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              aria-describedby="auth-email-help"
               required
             />
+            <p id="auth-email-help" className="text-xs text-muted-foreground">
+              Enter the email linked to your TaskOrbit account.
+            </p>
           </div>
           <div className="space-y-1">
             <label htmlFor="auth-password" className="text-xs font-medium text-muted-foreground">
@@ -255,8 +263,12 @@ export function LoginForm({
               placeholder="Password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              aria-describedby="auth-password-help"
               required
             />
+            <p id="auth-password-help" className="text-xs text-muted-foreground">
+              Password must be at least 6 characters.
+            </p>
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>

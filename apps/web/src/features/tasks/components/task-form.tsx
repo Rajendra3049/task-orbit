@@ -103,10 +103,19 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
           <Input
             id={`task-title-${variant}`}
             placeholder={mode === "office" ? "e.g., Prepare Q2 roadmap draft" : "e.g., Book dentist appointment"}
+            aria-invalid={!!form.formState.errors.title}
+            aria-describedby={
+              form.formState.errors.title ? `task-title-error-${variant}` : `task-title-help-${variant}`
+            }
             {...form.register("title")}
           />
+          <p id={`task-title-help-${variant}`} className="mt-1 text-xs text-muted-foreground">
+            Use a clear action phrase so it is easy to execute later.
+          </p>
           {form.formState.errors.title ? (
-            <p className="mt-1 text-xs text-danger">{form.formState.errors.title.message}</p>
+            <p id={`task-title-error-${variant}`} className="mt-1 text-xs text-danger">
+              {form.formState.errors.title.message}
+            </p>
           ) : null}
         </div>
 
@@ -126,8 +135,12 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
             min={5}
             max={480}
             title="Estimated effort in minutes (5-480)"
+            aria-describedby={`task-estimated-minutes-help-${variant}`}
             {...form.register("estimatedMinutes", { valueAsNumber: true })}
           />
+          <p id={`task-estimated-minutes-help-${variant}`} className="mt-1 text-xs text-muted-foreground">
+            Choose a realistic estimate between 5 and 480 minutes.
+          </p>
         </div>
 
         <div>
@@ -195,12 +208,16 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
               <select
                 id={`task-recurrence-pattern-${variant}`}
                 className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+                aria-describedby={`task-recurrence-help-${variant}`}
                 {...form.register("recurrencePattern")}
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
               </select>
+              <p id={`task-recurrence-help-${variant}`} className="mt-1 text-xs text-muted-foreground">
+                Applied only when recurring task is enabled.
+              </p>
             </div>
           </>
         ) : null}

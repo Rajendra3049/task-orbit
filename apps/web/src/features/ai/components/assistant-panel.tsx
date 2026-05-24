@@ -74,7 +74,11 @@ export function AssistantPanel() {
           value={command}
           onChange={(event) => setCommand(event.target.value)}
           placeholder='Try: "Plan my top 3 tasks for tomorrow"'
+          aria-describedby="assistant-command-help"
         />
+        <p id="assistant-command-help" className="text-xs text-muted-foreground">
+          Use plain language and include words like tomorrow, urgent, work, or personal.
+        </p>
         <Button title="Parse command and create task action" onClick={() => void runCommand()} disabled={createTask.isPending}>
           {createTask.isPending ? "Running..." : "Run command"}
         </Button>
