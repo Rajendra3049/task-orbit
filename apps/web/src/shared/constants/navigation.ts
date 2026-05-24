@@ -1,4 +1,17 @@
-import { CalendarDays, Inbox, LayoutDashboard, ListTodo, Settings, SunMedium, FolderKanban, Flame } from "lucide-react";
+import {
+  Bot,
+  CalendarDays,
+  Flame,
+  FolderKanban,
+  Goal,
+  Inbox,
+  LayoutDashboard,
+  LineChart,
+  ListTodo,
+  Settings,
+  SunMedium,
+  UsersRound,
+} from "lucide-react";
 
 export const primaryNavigation = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -7,6 +20,10 @@ export const primaryNavigation = [
   { label: "Today", href: "/today", icon: SunMedium },
   { label: "Projects", href: "/projects", icon: FolderKanban },
   { label: "Habits", href: "/habits", icon: Flame },
+  { label: "Goals", href: "/goals", icon: Goal },
   { label: "Calendar", href: "/calendar", icon: CalendarDays },
+  { label: "Analytics", href: "/analytics", icon: LineChart },
+  { label: "AI Assistant", href: "/assistant", icon: Bot },
+  { label: "Workspaces", href: "/workspaces", icon: UsersRound },
   { label: "Settings", href: "/settings", icon: Settings },
 ] as const;

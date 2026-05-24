@@ -1,5 +1,6 @@
 "use client";
 
+import { addDays, addMonths, addWeeks } from "date-fns";
 import { CreateTaskInput, Task } from "@/features/tasks/types/task.types";
 import { createSupabaseClient } from "@/services/supabase/client";
 
@@ -35,6 +36,23 @@ function mapTaskRow(row: TaskRow): Task {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function getNextRecurringDueDate(
+  dueDate: string | null,
+  recurrencePattern: "daily" | "weekly" | "monthly" | null,
+) {
+  const baseDate = dueDate ? new Date(dueDate) : new Date();
+  switch (recurrencePattern) {
+    case "daily":
+      return addDays(baseDate, 1).toISOString();
+    case "weekly":
+      return addWeeks(baseDate, 1).toISOString();
+    case "monthly":
+      return addMonths(baseDate, 1).toISOString();
+    default:
+      return null;
+  }
 }
 
 async function getSupabaseUserId() {
@@ -100,11 +118,11 @@ export const taskService = {
     return mapTaskRow(data as TaskRow);
   },
   async toggleComplete(taskId: string): Promise<void> {
-    const { supabase } = await getSupabaseUserId();
+    const { supabase, userId } = await getSupabaseUserId();
 
     const { data: currentTask, error: currentTaskError } = await supabase
       .from("tasks")
-      .select("id, is_completed")
+      .select("id, title, is_completed, status, priority, context, due_date, estimated_minutes, project_id, is_recurring, recurrence_pattern")
       .eq("id", taskId)
       .single();
 
@@ -124,6 +142,27 @@ export const taskService = {
     if (error) {
       throw new Error(error.message);
     }
+
+    if (nextCompleted && currentTask.is_recurring) {
+      const nextDueDate = getNextRecurringDueDate(currentTask.due_date, currentTask.recurrence_pattern);
+      if (nextDueDate) {
+        const { error: recurringCreateError } = await supabase.from("tasks").insert({
+          user_id: userId,
+          title: currentTask.title,
+          status: "todo",
+          priority: currentTask.priority,
+          context: currentTask.context,
+          due_date: nextDueDate,
+          estimated_minutes: currentTask.estimated_minutes,
+          project_id: currentTask.project_id,
+          is_recurring: true,
+          recurrence_pattern: currentTask.recurrence_pattern,
+        });
+        if (recurringCreateError) {
+          throw new Error(recurringCreateError.message);
+        }
+      }
+    }
   },
   async remove(taskId: string): Promise<void> {
     const { supabase } = await getSupabaseUserId();
@@ -135,18 +174,36 @@ export const taskService = {
   },
   async update(taskId: string, payload: Partial<CreateTaskInput>): Promise<Task> {
     const { supabase } = await getSupabaseUserId();
+    const updatePayload: Record<string, unknown> = {};
+
+    if (Object.prototype.hasOwnProperty.call(payload, "title")) {
+      updatePayload.title = payload.title;
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, "priority")) {
+      updatePayload.priority = payload.priority;
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, "context")) {
+      updatePayload.context = payload.context;
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, "dueDate")) {
+      updatePayload.due_date = payload.dueDate;
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, "estimatedMinutes")) {
+      updatePayload.estimated_minutes = payload.estimatedMinutes;
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, "projectId")) {
+      updatePayload.project_id = payload.projectId;
+    }
+    if (Object.prototype.hasOwnProperty.call(payload, "isRecurring")) {
+      updatePayload.is_recurring = payload.isRecurring;
+      updatePayload.recurrence_pattern = payload.isRecurring ? payload.recurrencePattern : null;
+    } else if (Object.prototype.hasOwnProperty.call(payload, "recurrencePattern")) {
+      updatePayload.recurrence_pattern = payload.recurrencePattern;
+    }
+
     const { data, error } = await supabase
       .from("tasks")
-      .update({
-        title: payload.title,
-        priority: payload.priority,
-        context: payload.context,
-        due_date: payload.dueDate,
-        estimated_minutes: payload.estimatedMinutes,
-        project_id: payload.projectId,
-        is_recurring: payload.isRecurring,
-        recurrence_pattern: payload.isRecurring ? payload.recurrencePattern : null,
-      })
+      .update(updatePayload)
       .eq("id", taskId)
       .select(
         "id, title, status, priority, context, due_date, estimated_minutes, project_id, is_recurring, recurrence_pattern, is_completed, created_at, updated_at",

@@ -36,3 +36,33 @@ export function useToggleHabitToday() {
     onError: (error: Error) => toast.error(error.message || "Unable to update habit"),
   });
 }
+
+export function useUpdateHabit() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      habitId,
+      payload,
+    }: {
+      habitId: string;
+      payload: Partial<CreateHabitInput> & { streakCount?: number };
+    }) => habitService.update(habitId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: HABITS_QUERY_KEY });
+      toast.success("Habit updated");
+    },
+    onError: (error: Error) => toast.error(error.message || "Unable to update habit"),
+  });
+}
+
+export function useDeleteHabit() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (habitId: string) => habitService.remove(habitId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: HABITS_QUERY_KEY });
+      toast.success("Habit deleted");
+    },
+    onError: (error: Error) => toast.error(error.message || "Unable to delete habit"),
+  });
+}

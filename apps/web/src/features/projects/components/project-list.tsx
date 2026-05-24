@@ -1,12 +1,21 @@
 "use client";
 
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useProjects } from "@/features/projects/hooks/use-projects";
+import { Input } from "@/components/ui/input";
+import { useDeleteProject, useProjects, useUpdateProject } from "@/features/projects/hooks/use-projects";
 import { useUiStore } from "@/shared/store/ui-store";
 
 export function ProjectList() {
   const { data, isLoading, isError } = useProjects();
+  const updateProject = useUpdateProject();
+  const deleteProject = useDeleteProject();
   const mode = useUiStore((state) => state.mode);
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [editedName, setEditedName] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
 
   if (isLoading) {
     return (
@@ -38,10 +47,58 @@ export function ProjectList() {
     <div className="grid gap-3 md:grid-cols-2">
       {projects.map((project) => (
         <Card key={project.id} className="space-y-2">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">{project.context}</p>
-          <h3 className="text-lg font-semibold">{project.name}</h3>
-          <p className="text-sm text-muted-foreground">{project.description || "No description"}</p>
-          <p className="text-xs text-muted-foreground">Progress: {project.progress}%</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">{project.context}</p>
+            <Button variant="ghost" size="icon" onClick={() => deleteProject.mutate(project.id)}>
+              <Trash2 className="size-4 text-danger" />
+            </Button>
+          </div>
+
+          {editingProjectId === project.id ? (
+            <div className="space-y-2">
+              <Input value={editedName} onChange={(event) => setEditedName(event.target.value)} />
+              <Input value={editedDescription} onChange={(event) => setEditedDescription(event.target.value)} />
+              <div className="flex gap-2">
+                <Button
+                  onClick={() =>
+                    updateProject.mutate(
+                      {
+                        projectId: project.id,
+                        payload: {
+                          name: editedName.trim(),
+                          description: editedDescription.trim(),
+                        },
+                      },
+                      {
+                        onSuccess: () => setEditingProjectId(null),
+                      },
+                    )
+                  }
+                >
+                  Save
+                </Button>
+                <Button variant="ghost" onClick={() => setEditingProjectId(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h3 className="text-lg font-semibold">{project.name}</h3>
+              <p className="text-sm text-muted-foreground">{project.description || "No description"}</p>
+              <p className="text-xs text-muted-foreground">Progress: {project.progress}%</p>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setEditingProjectId(project.id);
+                  setEditedName(project.name);
+                  setEditedDescription(project.description || "");
+                }}
+              >
+                Edit project
+              </Button>
+            </>
+          )}
         </Card>
       ))}
     </div>

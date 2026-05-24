@@ -184,3 +184,153 @@ for insert with check (auth.uid() = user_id);
 
 create policy "habit_logs_delete_own" on habit_logs
 for delete using (auth.uid() = user_id);
+
+-- Recurring task automation helper (for Supabase cron/job)
+create or replace function public.roll_over_recurring_tasks()
+returns int
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  updated_count int := 0;
+begin
+  update tasks
+  set due_date =
+    case recurrence_pattern
+      when 'daily' then due_date + interval '1 day'
+      when 'weekly' then due_date + interval '7 days'
+      when 'monthly' then due_date + interval '1 month'
+      else due_date
+    end,
+    updated_at = now()
+  where is_recurring = true
+    and is_completed = false
+    and due_date is not null
+    and due_date::date < now()::date;
+
+  get diagnostics updated_count = row_count;
+  return updated_count;
+end;
+$$;
+
+-- Phase 3+ extension: goals, analytics support, collaboration foundations
+
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'goal_status') then
+    create type goal_status as enum ('active', 'completed', 'paused');
+  end if;
+
+  if not exists (select 1 from pg_type where typname = 'workspace_visibility') then
+    create type workspace_visibility as enum ('private', 'team');
+  end if;
+end $$;
+
+create table if not exists goals (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  title text not null,
+  description text,
+  context task_context not null default 'general',
+  target_value int not null default 1,
+  current_value int not null default 0,
+  status goal_status not null default 'active',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists workspaces (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  visibility workspace_visibility not null default 'private',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists workspace_members (
+  id uuid primary key default gen_random_uuid(),
+  workspace_id uuid not null references workspaces(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role text not null default 'member',
+  created_at timestamptz not null default now(),
+  unique(workspace_id, user_id)
+);
+
+create index if not exists goals_user_id_idx on goals(user_id);
+create index if not exists workspaces_owner_id_idx on workspaces(owner_id);
+create index if not exists workspace_members_workspace_id_idx on workspace_members(workspace_id);
+
+alter table goals enable row level security;
+alter table workspaces enable row level security;
+alter table workspace_members enable row level security;
+
+drop policy if exists "goals_select_own" on goals;
+drop policy if exists "goals_insert_own" on goals;
+drop policy if exists "goals_update_own" on goals;
+drop policy if exists "goals_delete_own" on goals;
+
+create policy "goals_select_own" on goals
+for select using (auth.uid() = user_id);
+
+create policy "goals_insert_own" on goals
+for insert with check (auth.uid() = user_id);
+
+create policy "goals_update_own" on goals
+for update using (auth.uid() = user_id);
+
+create policy "goals_delete_own" on goals
+for delete using (auth.uid() = user_id);
+
+drop policy if exists "workspaces_select_own" on workspaces;
+drop policy if exists "workspaces_insert_own" on workspaces;
+drop policy if exists "workspaces_update_own" on workspaces;
+drop policy if exists "workspaces_delete_own" on workspaces;
+
+create policy "workspaces_select_own" on workspaces
+for select using (auth.uid() = owner_id);
+
+create policy "workspaces_insert_own" on workspaces
+for insert with check (auth.uid() = owner_id);
+
+create policy "workspaces_update_own" on workspaces
+for update using (auth.uid() = owner_id);
+
+create policy "workspaces_delete_own" on workspaces
+for delete using (auth.uid() = owner_id);
+
+drop policy if exists "workspace_members_select_access" on workspace_members;
+drop policy if exists "workspace_members_insert_owner" on workspace_members;
+drop policy if exists "workspace_members_delete_owner" on workspace_members;
+
+create policy "workspace_members_select_access" on workspace_members
+for select using (
+  exists (
+    select 1
+    from workspaces w
+    where w.id = workspace_members.workspace_id
+      and w.owner_id = auth.uid()
+  )
+  or workspace_members.user_id = auth.uid()
+);
+
+create policy "workspace_members_insert_owner" on workspace_members
+for insert with check (
+  exists (
+    select 1
+    from workspaces w
+    where w.id = workspace_members.workspace_id
+      and w.owner_id = auth.uid()
+  )
+);
+
+create policy "workspace_members_delete_owner" on workspace_members
+for delete using (
+  exists (
+    select 1
+    from workspaces w
+    where w.id = workspace_members.workspace_id
+      and w.owner_id = auth.uid()
+  )
+);

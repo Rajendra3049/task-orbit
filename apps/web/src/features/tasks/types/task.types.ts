@@ -22,7 +22,7 @@ export type CreateTaskInput = {
   title: string;
   priority: TaskPriority;
   context: TaskContext;
-  dueDate?: string;
+  dueDate?: string | null;
   estimatedMinutes: number;
   projectId?: string;
   isRecurring?: boolean;

@@ -65,4 +65,29 @@ export const projectService = {
     if (error) throw new Error(error.message);
     return mapRow(data as ProjectRow);
   },
+  async update(
+    projectId: string,
+    payload: Partial<CreateProjectInput> & { status?: Project["status"]; progress?: number },
+  ): Promise<Project> {
+    const { supabase } = await getClientAndUser();
+    const { data, error } = await supabase
+      .from("projects")
+      .update({
+        name: payload.name,
+        description: payload.description,
+        context: payload.context,
+        status: payload.status,
+        progress: payload.progress,
+      })
+      .eq("id", projectId)
+      .select("id, name, description, context, status, progress, created_at, updated_at")
+      .single();
+    if (error) throw new Error(error.message);
+    return mapRow(data as ProjectRow);
+  },
+  async remove(projectId: string): Promise<void> {
+    const { supabase } = await getClientAndUser();
+    const { error } = await supabase.from("projects").delete().eq("id", projectId);
+    if (error) throw new Error(error.message);
+  },
 };

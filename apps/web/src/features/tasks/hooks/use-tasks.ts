@@ -75,3 +75,21 @@ export function useDeleteTask() {
     onError: (error: Error) => toast.error(error.message || "Could not delete task."),
   });
 }
+
+export function useUpdateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      taskId,
+      payload,
+    }: {
+      taskId: string;
+      payload: Partial<CreateTaskInput>;
+    }) => taskService.update(taskId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
+      toast.success("Task updated");
+    },
+    onError: (error: Error) => toast.error(error.message || "Could not update task."),
+  });
+}

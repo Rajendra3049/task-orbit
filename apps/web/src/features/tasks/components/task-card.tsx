@@ -1,11 +1,13 @@
 "use client";
 
 import { format } from "date-fns";
-import { CheckCircle2, Circle, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Circle, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useDeleteTask, useToggleTaskCompletion } from "@/features/tasks/hooks/use-tasks";
+import { Input } from "@/components/ui/input";
+import { useDeleteTask, useToggleTaskCompletion, useUpdateTask } from "@/features/tasks/hooks/use-tasks";
 import { Task } from "@/features/tasks/types/task.types";
 
 type TaskCardProps = {
@@ -21,14 +23,25 @@ const priorityMap = {
 export function TaskCard({ task }: TaskCardProps) {
   const toggleTask = useToggleTaskCompletion();
   const deleteTask = useDeleteTask();
+  const updateTask = useUpdateTask();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(task.title);
+  const [editedDueDate, setEditedDueDate] = useState(task.dueDate ? task.dueDate.slice(0, 10) : "");
 
   return (
     <Card className="space-y-3 p-4">
       <div className="flex items-start justify-between gap-3">
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground uppercase tracking-wide">{task.context}</p>
-          <h3 className="text-base font-semibold">{task.title}</h3>
-        </div>
+        {isEditing ? (
+          <div className="w-full space-y-2">
+            <Input value={editedTitle} onChange={(event) => setEditedTitle(event.target.value)} />
+            <Input type="date" value={editedDueDate} onChange={(event) => setEditedDueDate(event.target.value)} />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground uppercase tracking-wide">{task.context}</p>
+            <h3 className="text-base font-semibold">{task.title}</h3>
+          </div>
+        )}
         <Badge variant={priorityMap[task.priority]}>{task.priority}</Badge>
       </div>
 
@@ -41,6 +54,36 @@ export function TaskCard({ task }: TaskCardProps) {
           · {task.estimatedMinutes}m {task.isRecurring ? `· recurring ${task.recurrencePattern}` : ""}
         </p>
         <div className="flex items-center gap-2">
+          {isEditing ? (
+            <>
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  updateTask.mutate(
+                    {
+                      taskId: task.id,
+                      payload: {
+                        title: editedTitle.trim(),
+                        dueDate: editedDueDate || undefined,
+                      },
+                    },
+                    {
+                      onSuccess: () => setIsEditing(false),
+                    },
+                  )
+                }
+              >
+                Save
+              </Button>
+              <Button variant="ghost" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} aria-label="Edit task">
+              <Pencil className="size-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

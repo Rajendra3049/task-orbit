@@ -112,4 +112,25 @@ export const habitService = {
     });
     if (error) throw new Error(error.message);
   },
+  async update(
+    habitId: string,
+    payload: Partial<CreateHabitInput> & { streakCount?: number },
+  ): Promise<void> {
+    const { supabase } = await getClientAndUser();
+    const { error } = await supabase
+      .from("habits")
+      .update({
+        name: payload.name,
+        context: payload.context,
+        frequency: payload.frequency,
+        streak_count: payload.streakCount,
+      })
+      .eq("id", habitId);
+    if (error) throw new Error(error.message);
+  },
+  async remove(habitId: string): Promise<void> {
+    const { supabase } = await getClientAndUser();
+    const { error } = await supabase.from("habits").delete().eq("id", habitId);
+    if (error) throw new Error(error.message);
+  },
 };

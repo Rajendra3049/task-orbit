@@ -49,6 +49,27 @@ export function SettingsPanel() {
           Active mode: {mode}. Saved mode: {savedMode ?? "not loaded"}.
         </p>
       </Card>
+      <Card className="space-y-2">
+        <h2 className="text-lg font-semibold">Integrations</h2>
+        <p className="text-sm text-muted-foreground">
+          Integration connectors are ready for wiring: Google Calendar, Outlook, Slack, GitHub.
+        </p>
+        <div className="grid gap-2 md:grid-cols-2">
+          <IntegrationItem name="Google Calendar" status="Coming next" />
+          <IntegrationItem name="Outlook Calendar" status="Coming next" />
+          <IntegrationItem name="Slack" status="Coming next" />
+          <IntegrationItem name="GitHub" status="Coming next" />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function IntegrationItem({ name, status }: { name: string; status: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-3">
+      <p className="font-medium">{name}</p>
+      <p className="text-xs text-muted-foreground">{status}</p>
     </div>
   );
 }

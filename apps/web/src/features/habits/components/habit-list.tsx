@@ -1,15 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { CheckCircle2, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useHabits, useToggleHabitToday } from "@/features/habits/hooks/use-habits";
+import { Input } from "@/components/ui/input";
+import { useDeleteHabit, useHabits, useToggleHabitToday, useUpdateHabit } from "@/features/habits/hooks/use-habits";
 import { useUiStore } from "@/shared/store/ui-store";
 
 export function HabitList() {
   const { data, isLoading, isError } = useHabits();
   const toggleHabit = useToggleHabitToday();
+  const updateHabit = useUpdateHabit();
+  const deleteHabit = useDeleteHabit();
   const mode = useUiStore((state) => state.mode);
+  const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
+  const [editedName, setEditedName] = useState("");
 
   if (isLoading) {
     return (
@@ -43,7 +49,11 @@ export function HabitList() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{habit.context}</p>
-              <h3 className="text-lg font-semibold">{habit.name}</h3>
+              {editingHabitId === habit.id ? (
+                <Input value={editedName} onChange={(event) => setEditedName(event.target.value)} />
+              ) : (
+                <h3 className="text-lg font-semibold">{habit.name}</h3>
+              )}
             </div>
             <span className="text-xs text-muted-foreground">{habit.frequency}</span>
           </div>
@@ -61,6 +71,38 @@ export function HabitList() {
               </>
             )}
           </Button>
+          {editingHabitId === habit.id ? (
+            <div className="flex gap-2">
+              <Button
+                onClick={() =>
+                  updateHabit.mutate(
+                    { habitId: habit.id, payload: { name: editedName } },
+                    { onSuccess: () => setEditingHabitId(null) },
+                  )
+                }
+              >
+                Save
+              </Button>
+              <Button variant="ghost" onClick={() => setEditingHabitId(null)}>
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setEditingHabitId(habit.id);
+                  setEditedName(habit.name);
+                }}
+              >
+                Edit habit
+              </Button>
+              <Button variant="ghost" onClick={() => deleteHabit.mutate(habit.id)}>
+                Delete
+              </Button>
+            </div>
+          )}
         </Card>
       ))}
     </div>

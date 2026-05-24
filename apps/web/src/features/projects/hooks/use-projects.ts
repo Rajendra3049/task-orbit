@@ -25,3 +25,33 @@ export function useCreateProject() {
     onError: (error: Error) => toast.error(error.message || "Could not create project."),
   });
 }
+
+export function useUpdateProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      projectId,
+      payload,
+    }: {
+      projectId: string;
+      payload: Partial<CreateProjectInput> & { status?: Project["status"]; progress?: number };
+    }) => projectService.update(projectId, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
+      toast.success("Project updated");
+    },
+    onError: (error: Error) => toast.error(error.message || "Could not update project."),
+  });
+}
+
+export function useDeleteProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (projectId: string) => projectService.remove(projectId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
+      toast.success("Project deleted");
+    },
+    onError: (error: Error) => toast.error(error.message || "Could not delete project."),
+  });
+}
