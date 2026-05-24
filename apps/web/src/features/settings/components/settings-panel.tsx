@@ -55,10 +55,10 @@ export function SettingsPanel() {
           Integration connectors are ready for wiring: Google Calendar, Outlook, Slack, GitHub.
         </p>
         <div className="grid gap-2 md:grid-cols-2">
-          <IntegrationItem name="Google Calendar" status="Coming next" />
-          <IntegrationItem name="Outlook Calendar" status="Coming next" />
-          <IntegrationItem name="Slack" status="Coming next" />
-          <IntegrationItem name="GitHub" status="Coming next" />
+          <IntegrationItem name="Google Calendar" status="Planned" />
+          <IntegrationItem name="Outlook Calendar" status="In development" />
+          <IntegrationItem name="Slack" status="Planned" />
+          <IntegrationItem name="GitHub" status="Planned" />
         </div>
       </Card>
     </div>
@@ -66,10 +66,16 @@ export function SettingsPanel() {
 }
 
 function IntegrationItem({ name, status }: { name: string; status: string }) {
+  const tone =
+    status === "In development"
+      ? "bg-warning/20 text-warning"
+      : status === "Connected"
+        ? "bg-success/20 text-success"
+        : "bg-surface-elevated text-muted-foreground";
   return (
     <div className="rounded-xl border border-border bg-surface p-3">
       <p className="font-medium">{name}</p>
-      <p className="text-xs text-muted-foreground">{status}</p>
+      <span className={`mt-1 inline-flex rounded-full px-2 py-1 text-xs ${tone}`}>{status}</span>
     </div>
   );
 }

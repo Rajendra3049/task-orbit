@@ -17,6 +17,12 @@ export function HabitList() {
   const [editingHabitId, setEditingHabitId] = useState<string | null>(null);
   const [editedName, setEditedName] = useState("");
 
+  const handleDelete = (habitId: string) => {
+    const shouldDelete = window.confirm("Delete this habit and its completion logs?");
+    if (!shouldDelete) return;
+    deleteHabit.mutate(habitId);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -58,7 +64,11 @@ export function HabitList() {
             <span className="text-xs text-muted-foreground">{habit.frequency}</span>
           </div>
           <p className="text-sm text-muted-foreground">Streak: {habit.streakCount} days</p>
-          <Button variant="ghost" onClick={() => toggleHabit.mutate(habit.id)}>
+          <Button
+            variant="ghost"
+            title="Mark this habit as complete for today"
+            onClick={() => toggleHabit.mutate(habit.id)}
+          >
             {habit.completedToday ? (
               <>
                 <CheckCircle2 className="mr-2 size-4 text-success" />
@@ -91,6 +101,7 @@ export function HabitList() {
             <div className="flex gap-2">
               <Button
                 variant="ghost"
+                title="Edit habit name"
                 onClick={() => {
                   setEditingHabitId(habit.id);
                   setEditedName(habit.name);
@@ -98,7 +109,7 @@ export function HabitList() {
               >
                 Edit habit
               </Button>
-              <Button variant="ghost" onClick={() => deleteHabit.mutate(habit.id)}>
+              <Button variant="ghost" title="Delete habit" onClick={() => handleDelete(habit.id)}>
                 Delete
               </Button>
             </div>

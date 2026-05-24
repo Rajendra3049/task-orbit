@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { useTasks } from "@/features/tasks/hooks/use-tasks";
 import { TaskCard } from "@/features/tasks/components/task-card";
@@ -46,8 +47,16 @@ export function TaskList({ heading = "Task list", view = "all", searchQuery = ""
               ? "Inbox is empty. Capture ideas quickly to process later."
               : "No tasks found for this view.";
     return (
-      <Card>
+      <Card className="space-y-3">
         <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+        <div className="flex gap-2">
+          <Link href="/inbox" className="rounded-lg border border-border bg-surface px-3 py-2 text-sm hover:bg-surface-elevated">
+            Go to inbox
+          </Link>
+          <Link href="/tasks" className="rounded-lg border border-border bg-surface px-3 py-2 text-sm hover:bg-surface-elevated">
+            Create task
+          </Link>
+        </div>
       </Card>
     );
   }

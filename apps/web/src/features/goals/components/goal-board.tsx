@@ -25,9 +25,15 @@ export function GoalBoard() {
       <Card className="space-y-3">
         <h2 className="text-lg font-semibold">Create goal</h2>
         <div className="grid gap-3 md:grid-cols-2">
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Goal title" />
-          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
-          <Input type="number" min={1} value={target} onChange={(e) => setTarget(Number(e.target.value || 1))} />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Publish 12 articles" />
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Why this goal matters" />
+          <Input
+            type="number"
+            min={1}
+            title="Target value should be a measurable milestone"
+            value={target}
+            onChange={(e) => setTarget(Number(e.target.value || 1))}
+          />
           <select
             className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
             value={context}
@@ -56,6 +62,13 @@ export function GoalBoard() {
 
       {isLoading ? <Card>Loading goals...</Card> : null}
       {isError ? <Card className="text-danger">Unable to load goals.</Card> : null}
+      {!isLoading && !isError && goals.length === 0 ? (
+        <Card>
+          <p className="text-sm text-muted-foreground">
+            No goals yet. Start with one measurable target for this week.
+          </p>
+        </Card>
+      ) : null}
       <div className="grid gap-3 md:grid-cols-2">
         {goals.map((goal) => {
           const progress = goal.targetValue === 0 ? 0 : Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100));
@@ -72,6 +85,7 @@ export function GoalBoard() {
               </div>
               <Button
                 variant="ghost"
+                title="Increment progress by one completed unit"
                 onClick={() => updateProgress.mutate({ goalId: goal.id, currentValue: goal.currentValue + 1 })}
               >
                 +1 progress

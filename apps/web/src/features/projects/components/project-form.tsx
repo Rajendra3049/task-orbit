@@ -30,13 +30,13 @@ export function ProjectForm() {
       <form className="grid gap-3 md:grid-cols-2" onSubmit={onSubmit}>
         <Input
           className="md:col-span-2"
-          placeholder="Project name"
+          placeholder="e.g., Mobile app launch"
           value={name}
           onChange={(event) => setName(event.target.value)}
           required
         />
         <Input
-          placeholder="Short description"
+          placeholder="Outcome, owner, or deadline context"
           value={description}
           onChange={(event) => setDescription(event.target.value)}
         />

@@ -28,6 +28,12 @@ export function TaskCard({ task }: TaskCardProps) {
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [editedDueDate, setEditedDueDate] = useState(task.dueDate ? task.dueDate.slice(0, 10) : "");
 
+  const handleDelete = () => {
+    const shouldDelete = window.confirm("Delete this task? This action cannot be undone.");
+    if (!shouldDelete) return;
+    deleteTask.mutate(task.id);
+  };
+
   return (
     <Card className="space-y-3 p-4">
       <div className="flex items-start justify-between gap-3">
@@ -96,7 +102,13 @@ export function TaskCard({ task }: TaskCardProps) {
               <Circle className="size-4 text-muted-foreground" />
             )}
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => deleteTask.mutate(task.id)} aria-label="Delete task">
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Delete this task permanently"
+            onClick={handleDelete}
+            aria-label="Delete task"
+          >
             <Trash2 className="size-4 text-danger" />
           </Button>
         </div>

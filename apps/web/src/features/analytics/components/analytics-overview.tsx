@@ -53,6 +53,9 @@ export function AnalyticsOverview() {
         <p className="mt-2 text-sm text-muted-foreground">
           Productivity trends, life-balance signal, and progress visibility for your current mode.
         </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Scores are computed from your current workspace data and can lag by a few seconds after updates.
+        </p>
       </Card>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (

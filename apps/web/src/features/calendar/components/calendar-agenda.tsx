@@ -38,6 +38,7 @@ export function CalendarAgenda() {
         <p className="mt-2 text-sm text-muted-foreground">
           Weekly planner with overdue, today, and upcoming items.
         </p>
+        <p className="mt-1 text-xs text-muted-foreground">All due dates are shown in your local timezone.</p>
       </Card>
 
       <AgendaGroup title="Overdue" items={overdue} />

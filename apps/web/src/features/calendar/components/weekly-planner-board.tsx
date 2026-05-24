@@ -1,6 +1,8 @@
 "use client";
 
 import { eachDayOfInterval, endOfWeek, format, isSameDay, parseISO, startOfWeek } from "date-fns";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTasks, useUpdateTask } from "@/features/tasks/hooks/use-tasks";
 import { applyModeFilter } from "@/features/tasks/utils/task-filters";
@@ -10,6 +12,9 @@ export function WeeklyPlannerBoard() {
   const { data, isLoading, isError } = useTasks();
   const updateTask = useUpdateTask();
   const mode = useUiStore((state) => state.mode);
+  const [activeDropZone, setActiveDropZone] = useState<string>("");
+  const [selectedTaskId, setSelectedTaskId] = useState<string>("");
+  const [selectedDayIso, setSelectedDayIso] = useState<string>("unscheduled");
 
   if (isLoading) {
     return (
@@ -47,14 +52,62 @@ export function WeeklyPlannerBoard() {
   return (
     <Card className="space-y-4">
       <h2 className="text-lg font-semibold">Weekly planner board</h2>
+      <p className="text-xs text-muted-foreground">
+        Tip: Drag a task into a day column to schedule. Keyboard fallback is available below. Dates use your local timezone.
+      </p>
+      <div className="grid gap-2 md:grid-cols-3">
+        <select
+          value={selectedTaskId}
+          onChange={(event) => setSelectedTaskId(event.target.value)}
+          className="h-10 rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+          aria-label="Select a task to reschedule"
+        >
+          <option value="">Select task</option>
+          {scoped.map((task) => (
+            <option key={task.id} value={task.id}>
+              {task.title}
+            </option>
+          ))}
+        </select>
+        <select
+          value={selectedDayIso}
+          onChange={(event) => setSelectedDayIso(event.target.value)}
+          className="h-10 rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
+          aria-label="Select a day for selected task"
+        >
+          <option value="unscheduled">Unscheduled</option>
+          {days.map((day) => (
+            <option key={day.toISOString()} value={day.toISOString()}>
+              {format(day, "EEE d")}
+            </option>
+          ))}
+        </select>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            if (!selectedTaskId) return;
+            handleDrop(selectedTaskId, selectedDayIso === "unscheduled" ? null : selectedDayIso);
+          }}
+          disabled={!selectedTaskId}
+        >
+          Apply schedule
+        </Button>
+      </div>
       <div
-        className="rounded-xl border border-dashed border-border bg-surface p-3"
-        onDragOver={(event) => event.preventDefault()}
+        className={`rounded-xl border border-dashed bg-surface p-3 ${
+          activeDropZone === "unscheduled" ? "border-primary" : "border-border"
+        }`}
+        onDragOver={(event) => {
+          event.preventDefault();
+          setActiveDropZone("unscheduled");
+        }}
+        onDragLeave={() => setActiveDropZone("")}
         onDrop={(event) => {
           event.preventDefault();
           const taskId = event.dataTransfer.getData("text/task-id");
           if (!taskId) return;
           handleDrop(taskId, null);
+          setActiveDropZone("");
         }}
       >
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Unscheduled</p>
@@ -74,13 +127,20 @@ export function WeeklyPlannerBoard() {
           return (
             <div
               key={day.toISOString()}
-              className="rounded-xl border border-border bg-surface-elevated p-3"
-              onDragOver={(event) => event.preventDefault()}
+              className={`rounded-xl border bg-surface-elevated p-3 ${
+                activeDropZone === day.toISOString() ? "border-primary" : "border-border"
+              }`}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setActiveDropZone(day.toISOString());
+              }}
+              onDragLeave={() => setActiveDropZone("")}
               onDrop={(event) => {
                 event.preventDefault();
                 const taskId = event.dataTransfer.getData("text/task-id");
                 if (!taskId) return;
                 handleDrop(taskId, day.toISOString());
+                setActiveDropZone("");
               }}
             >
               <p className="text-xs uppercase tracking-wide text-muted-foreground">{format(day, "EEE d")}</p>

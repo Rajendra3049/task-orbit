@@ -27,7 +27,7 @@ export function HabitForm() {
           className="md:col-span-3"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Habit name"
+          placeholder="e.g., 30 min deep work"
           required
         />
         <select
@@ -50,6 +50,9 @@ export function HabitForm() {
         <Button type="submit" disabled={createHabit.isPending}>
           {createHabit.isPending ? "Creating..." : "Create habit"}
         </Button>
+        <p className="md:col-span-3 text-xs text-muted-foreground">
+          Daily habits are best for routines. Weekly habits are best for planning and reviews.
+        </p>
       </form>
     </Card>
   );

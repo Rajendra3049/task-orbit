@@ -17,6 +17,12 @@ export function ProjectList() {
   const [editedName, setEditedName] = useState("");
   const [editedDescription, setEditedDescription] = useState("");
 
+  const handleDelete = (projectId: string) => {
+    const shouldDelete = window.confirm("Delete this project? Linked tasks will stay but become unassigned.");
+    if (!shouldDelete) return;
+    deleteProject.mutate(projectId);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -49,7 +55,12 @@ export function ProjectList() {
         <Card key={project.id} className="space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">{project.context}</p>
-            <Button variant="ghost" size="icon" onClick={() => deleteProject.mutate(project.id)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="Delete project"
+              onClick={() => handleDelete(project.id)}
+            >
               <Trash2 className="size-4 text-danger" />
             </Button>
           </div>
@@ -89,6 +100,7 @@ export function ProjectList() {
               <p className="text-xs text-muted-foreground">Progress: {project.progress}%</p>
               <Button
                 variant="ghost"
+                title="Edit project details"
                 onClick={() => {
                   setEditingProjectId(project.id);
                   setEditedName(project.name);

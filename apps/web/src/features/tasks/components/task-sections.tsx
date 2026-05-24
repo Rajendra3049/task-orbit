@@ -33,7 +33,7 @@ export function TaskSections({ variant }: TaskSectionsProps) {
       <Input
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.target.value)}
-        placeholder="Search tasks by title..."
+        placeholder="Search by title, context, or priority..."
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">

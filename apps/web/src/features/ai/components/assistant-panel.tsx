@@ -66,8 +66,12 @@ export function AssistantPanel() {
         <p className="text-sm text-muted-foreground">
           Natural-language command parser for quick capture and prioritization.
         </p>
-        <Input value={command} onChange={(event) => setCommand(event.target.value)} placeholder="Type command..." />
-        <Button onClick={() => void runCommand()} disabled={createTask.isPending}>
+        <Input
+          value={command}
+          onChange={(event) => setCommand(event.target.value)}
+          placeholder='Try: "Plan my top 3 tasks for tomorrow"'
+        />
+        <Button title="Parse command and create task action" onClick={() => void runCommand()} disabled={createTask.isPending}>
           {createTask.isPending ? "Running..." : "Run command"}
         </Button>
         <div className="space-y-1">
@@ -86,7 +90,7 @@ export function AssistantPanel() {
 
       <Card>
         <p className="text-sm text-muted-foreground">
-          Current task load: {tasks?.length ?? 0} tasks. Assistant can be extended to summaries and optimization in next steps.
+          Current task load: {tasks?.length ?? 0} tasks. Tip: use explicit terms like tomorrow, urgent, work, or personal for best parsing.
         </p>
       </Card>
     </div>

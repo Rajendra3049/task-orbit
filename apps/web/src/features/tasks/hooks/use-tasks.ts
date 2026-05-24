@@ -43,11 +43,41 @@ export function useCreateTask() {
 
   return useMutation({
     mutationFn: (payload: CreateTaskInput) => taskService.create(payload),
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: TASKS_QUERY_KEY });
+      const previousTasks = queryClient.getQueryData<Task[]>(TASKS_QUERY_KEY) ?? [];
+      const now = new Date().toISOString();
+      const optimisticTask: Task = {
+        id: `optimistic-${crypto.randomUUID()}`,
+        title: payload.title,
+        status: "todo",
+        priority: payload.priority,
+        context: payload.context,
+        dueDate: payload.dueDate ?? null,
+        estimatedMinutes: payload.estimatedMinutes,
+        projectId: payload.projectId ?? null,
+        isRecurring: payload.isRecurring ?? false,
+        recurrencePattern: payload.recurrencePattern ?? null,
+        isCompleted: false,
+        createdAt: now,
+        updatedAt: now,
+      };
+      queryClient.setQueryData<Task[]>(TASKS_QUERY_KEY, [optimisticTask, ...previousTasks]);
+      return { previousTasks };
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
       toast.success("Task created");
     },
-    onError: (error: Error) => toast.error(error.message || "Could not create the task."),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
+    },
+    onError: (error: Error, _payload, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData<Task[]>(TASKS_QUERY_KEY, context.previousTasks);
+      }
+      toast.error(error.message || "Could not create the task.");
+    },
   });
 }
 
@@ -56,10 +86,35 @@ export function useToggleTaskCompletion() {
 
   return useMutation({
     mutationFn: (taskId: string) => taskService.toggleComplete(taskId),
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey: TASKS_QUERY_KEY });
+      const previousTasks = queryClient.getQueryData<Task[]>(TASKS_QUERY_KEY) ?? [];
+      queryClient.setQueryData<Task[]>(
+        TASKS_QUERY_KEY,
+        previousTasks.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                isCompleted: !task.isCompleted,
+                status: task.isCompleted ? "todo" : "done",
+              }
+            : task,
+        ),
+      );
+      return { previousTasks };
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
     },
-    onError: (error: Error) => toast.error(error.message || "Could not update task status."),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
+    },
+    onError: (error: Error, _taskId, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData<Task[]>(TASKS_QUERY_KEY, context.previousTasks);
+      }
+      toast.error(error.message || "Could not update task status.");
+    },
   });
 }
 
@@ -68,11 +123,28 @@ export function useDeleteTask() {
 
   return useMutation({
     mutationFn: (taskId: string) => taskService.remove(taskId),
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey: TASKS_QUERY_KEY });
+      const previousTasks = queryClient.getQueryData<Task[]>(TASKS_QUERY_KEY) ?? [];
+      queryClient.setQueryData<Task[]>(
+        TASKS_QUERY_KEY,
+        previousTasks.filter((task) => task.id !== taskId),
+      );
+      return { previousTasks };
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
       toast.success("Task deleted");
     },
-    onError: (error: Error) => toast.error(error.message || "Could not delete task."),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
+    },
+    onError: (error: Error, _taskId, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData<Task[]>(TASKS_QUERY_KEY, context.previousTasks);
+      }
+      toast.error(error.message || "Could not delete task.");
+    },
   });
 }
 
@@ -86,10 +158,42 @@ export function useUpdateTask() {
       taskId: string;
       payload: Partial<CreateTaskInput>;
     }) => taskService.update(taskId, payload),
+    onMutate: async ({ taskId, payload }) => {
+      await queryClient.cancelQueries({ queryKey: TASKS_QUERY_KEY });
+      const previousTasks = queryClient.getQueryData<Task[]>(TASKS_QUERY_KEY) ?? [];
+      queryClient.setQueryData<Task[]>(
+        TASKS_QUERY_KEY,
+        previousTasks.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                title: payload.title ?? task.title,
+                priority: payload.priority ?? task.priority,
+                context: payload.context ?? task.context,
+                dueDate: payload.dueDate === undefined ? task.dueDate : payload.dueDate,
+                estimatedMinutes: payload.estimatedMinutes ?? task.estimatedMinutes,
+                projectId: payload.projectId === undefined ? task.projectId : payload.projectId ?? null,
+                isRecurring: payload.isRecurring ?? task.isRecurring,
+                recurrencePattern: payload.recurrencePattern ?? task.recurrencePattern,
+                updatedAt: new Date().toISOString(),
+              }
+            : task,
+        ),
+      );
+      return { previousTasks };
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
       toast.success("Task updated");
     },
-    onError: (error: Error) => toast.error(error.message || "Could not update task."),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
+    },
+    onError: (error: Error, _args, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData<Task[]>(TASKS_QUERY_KEY, context.previousTasks);
+      }
+      toast.error(error.message || "Could not update task.");
+    },
   });
 }

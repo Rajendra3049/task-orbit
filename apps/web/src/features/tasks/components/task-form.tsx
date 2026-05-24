@@ -50,7 +50,7 @@ export function TaskForm() {
       <form className="grid gap-3 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="md:col-span-2">
           <Input
-            placeholder={mode === "office" ? "Capture a work task..." : "Capture a personal task..."}
+            placeholder={mode === "office" ? "e.g., Prepare Q2 roadmap draft" : "e.g., Book dentist appointment"}
             {...form.register("title")}
           />
           {form.formState.errors.title ? (
@@ -58,7 +58,7 @@ export function TaskForm() {
           ) : null}
         </div>
 
-        <div>
+        <div title="Set a due date in your local timezone">
           <Input type="date" {...form.register("dueDate")} />
         </div>
         <div>
@@ -66,11 +66,12 @@ export function TaskForm() {
             type="number"
             min={5}
             max={480}
+            title="Estimated effort in minutes (5-480)"
             {...form.register("estimatedMinutes", { valueAsNumber: true })}
           />
         </div>
 
-        <div>
+        <div title="Optional: link this task to a project">
           <select
             className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
             {...form.register("projectId")}
@@ -106,7 +107,7 @@ export function TaskForm() {
         </div>
 
         <label className="flex items-center gap-2 rounded-[var(--radius-input)] border border-border bg-surface px-3 py-2 text-sm">
-          <input type="checkbox" {...form.register("isRecurring")} />
+          <input type="checkbox" title="When complete, the next occurrence is auto-created" {...form.register("isRecurring")} />
           Recurring task
         </label>
         <div>
@@ -119,6 +120,10 @@ export function TaskForm() {
             <option value="monthly">Monthly</option>
           </select>
         </div>
+
+        <p className="md:col-span-2 text-xs text-muted-foreground">
+          Tip: Use recurring tasks for routines like weekly planning, billing reviews, or workouts.
+        </p>
 
         <div className="md:col-span-2">
           <Button type="submit" className="w-full" disabled={createTask.isPending}>

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Bell, PanelLeft, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useSaveWorkspaceMode, useWorkspaceMode } from "@/features/settings/hooks/use-workspace-mode";
@@ -25,6 +25,8 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
   const saveMode = useSaveWorkspaceMode();
   const { data: user } = useAuthUser();
   const signOut = useSignOut();
+  const [modeSaveError, setModeSaveError] = useState("");
+  const [searchText, setSearchText] = useState("");
   useTasksRealtimeSync();
 
   useEffect(() => {
@@ -53,13 +55,30 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
 
   const handleModeToggle = async () => {
     const nextMode = mode === "personal" ? "office" : "personal";
+    setModeSaveError("");
     setMode(nextMode);
     try {
       await saveMode.mutateAsync(nextMode);
       toast.success(`${nextMode === "office" ? "Office" : "Personal"} mode enabled.`);
     } catch {
       setMode(mode);
+      setModeSaveError("Could not save workspace mode. Your previous mode is restored.");
     }
+  };
+
+  const handleSearchEnter = (query: string) => {
+    const q = query.trim().toLowerCase();
+    if (!q) return;
+    if (q.includes("task")) return router.push("/tasks");
+    if (q.includes("today")) return router.push("/today");
+    if (q.includes("project")) return router.push("/projects");
+    if (q.includes("habit")) return router.push("/habits");
+    if (q.includes("goal")) return router.push("/goals");
+    if (q.includes("calendar")) return router.push("/calendar");
+    if (q.includes("analytics")) return router.push("/analytics");
+    if (q.includes("assistant") || q.includes("ai")) return router.push("/assistant");
+    if (q.includes("workspace")) return router.push("/workspaces");
+    router.push("/tasks");
   };
 
   return (
@@ -110,9 +129,11 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
             className="mt-2 w-full rounded-xl border border-border bg-surface-elevated p-2 text-left text-sm"
             onClick={() => void handleModeToggle()}
             disabled={saveMode.isPending}
+            title="Office mode hides personal items. Personal mode shows all."
           >
             {saveMode.isPending ? "Updating mode..." : mode === "office" ? "Office Mode" : "Personal Mode"}
           </button>
+          {modeSaveError ? <p className="mt-2 text-xs text-warning">{modeSaveError}</p> : null}
         </div>
       </aside>
 
@@ -120,10 +141,21 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         <header className="glass sticky top-4 z-10 flex items-center justify-between rounded-[24px] px-4 py-3">
           <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-muted-foreground">
             <Search className="size-4" />
-            Search tasks, notes, or commands
+            <input
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleSearchEnter(searchText);
+                }
+              }}
+              placeholder="Type and press Enter (tasks, today, projects...)"
+              className="min-w-[260px] bg-transparent outline-none placeholder:text-muted-foreground"
+              aria-label="Global quick navigation search"
+            />
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" aria-label="Notifications">
+            <Button variant="ghost" size="icon" aria-label="Notifications" title="Notification center coming soon">
               <Bell className="size-4" />
             </Button>
             <Button variant="ghost" size="default" onClick={() => void handleSignOut()}>
