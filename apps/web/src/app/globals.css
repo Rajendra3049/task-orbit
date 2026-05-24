@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b1020;
+  --background-secondary: #121826;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-elevated: rgba(255, 255, 255, 0.06);
+  --foreground: #e7ecf8;
+  --muted-foreground: #96a0b5;
+  --border: rgba(255, 255, 255, 0.14);
+  --primary: #6d5dfc;
+  --primary-office: #06b6d4;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --radius-card: 24px;
+  --radius-button: 16px;
+  --radius-input: 14px;
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-office: var(--primary-office);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --radius-card: var(--radius-card);
+  --radius-button: var(--radius-button);
+  --radius-input: var(--radius-input);
+  --shadow-soft: var(--shadow-soft);
+  --font-sans: Inter, system-ui, sans-serif;
+}
+
+[data-theme="office"] {
+  --primary: #06b6d4;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+* {
+  border-color: var(--border);
+}
+
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.gradient-ring {
+  position: relative;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.gradient-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklab, var(--primary), white 20%),
+    color-mix(in oklab, var(--primary), transparent 70%)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
