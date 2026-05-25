@@ -185,7 +185,34 @@ for insert with check (auth.uid() = user_id);
 create policy "habit_logs_delete_own" on habit_logs
 for delete using (auth.uid() = user_id);
 
--- Recurring task automation helper (for Supabase cron/job)
+-- Phase 3 extension: P0-P3 priority labels
+
+do $$
+begin
+  if exists (select 1 from pg_type where typname = 'task_priority') then
+    if not exists (
+      select 1 from pg_enum e
+      join pg_type t on e.enumtypid = t.oid
+      where t.typname = 'task_priority' and e.enumlabel = 'p0'
+    ) then
+      alter type task_priority rename to task_priority_old;
+      create type task_priority as enum ('p0', 'p1', 'p2', 'p3');
+      alter table tasks
+        alter column priority type task_priority
+        using (
+          case priority::text
+            when 'high' then 'p0'::task_priority
+            when 'medium' then 'p1'::task_priority
+            when 'low' then 'p2'::task_priority
+            else 'p2'::task_priority
+          end
+        );
+      alter table tasks alter column priority set default 'p2'::task_priority;
+      drop type task_priority_old;
+    end if;
+  end if;
+end $$;
+
 create or replace function public.roll_over_recurring_tasks()
 returns int
 language plpgsql
@@ -213,5 +240,3 @@ begin
   return updated_count;
 end;
 $$;
-
-A

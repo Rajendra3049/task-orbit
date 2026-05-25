@@ -5,7 +5,9 @@
 - Task belongs to one user
 - Optional project linkage
 - Optional recurring schedule
+- Optional description for richer context
 - Due dates are timezone-sensitive in display layer
+- Priority uses P0–P3 scale (P0 critical → P3 low)
 
 ## UX principles
 
@@ -16,3 +18,8 @@
   - Inbox uses full capture form.
   - Today uses compact "today-first" capture.
   - Tasks uses collapsible capture to reduce visual repetition.
+- Tasks page supports two views:
+  - **List** — Slack-style table with sortable columns and row actions.
+  - **Dashboard** — Kanban board grouped by status (To do / In progress / Done).
+- Recurrence pattern is shown only when recurring is enabled.
+- Full edit/delete is available via the task edit dialog from list, dashboard, and cards.

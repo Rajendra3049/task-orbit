@@ -11,7 +11,7 @@ type AssistantActionResult = {
   title: string;
   dueDate?: string;
   context: "work" | "personal" | "general";
-  priority: "low" | "medium" | "high";
+  priority: "p0" | "p1" | "p2" | "p3";
 };
 
 function parseAssistantCommand(command: string): AssistantActionResult | null {
@@ -20,11 +20,17 @@ function parseAssistantCommand(command: string): AssistantActionResult | null {
 
   const dueTomorrow = normalized.includes("tomorrow") ? addDays(new Date(), 1).toISOString() : undefined;
   const context = normalized.includes("office") || normalized.includes("work") ? "work" : normalized.includes("personal") ? "personal" : "general";
-  const priority = normalized.includes("urgent") || normalized.includes("high") ? "high" : normalized.includes("low") ? "low" : "medium";
+  const priority = normalized.includes("urgent") || normalized.includes("p0") || normalized.includes("critical")
+    ? "p0"
+    : normalized.includes("p1") || normalized.includes("high")
+      ? "p1"
+      : normalized.includes("p3") || normalized.includes("low")
+        ? "p3"
+        : "p2";
 
   const cleanedTitle = command
     .replace(/tomorrow/gi, "")
-    .replace(/urgent|high priority|low priority/gi, "")
+    .replace(/urgent|critical|p0|p1|p2|p3|high priority|low priority/gi, "")
     .replace(/create task|add task|remind me to/gi, "")
     .trim();
 
@@ -54,7 +60,6 @@ export function AssistantPanel() {
       dueDate: parsed.dueDate,
       context: parsed.context,
       priority: parsed.priority,
-      estimatedMinutes: 30,
     });
     setCommand("");
   };

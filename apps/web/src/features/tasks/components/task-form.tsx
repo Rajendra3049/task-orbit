@@ -10,6 +10,12 @@ import { Input } from "@/components/ui/input";
 import { useProjects } from "@/features/projects/hooks/use-projects";
 import { useCreateTask } from "@/features/tasks/hooks/use-tasks";
 import {
+  PRIORITY_LABELS,
+  selectFieldClassName,
+  TASK_PRIORITIES,
+  textareaFieldClassName,
+} from "@/features/tasks/utils/task-priority";
+import {
   createTaskSchema,
   CreateTaskSchemaValues,
 } from "@/features/tasks/validations/task.schema";
@@ -32,15 +38,19 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
       title: "",
-      priority: "medium",
+      description: "",
+      priority: "p2",
       context: mode === "office" ? "work" : "personal",
-      estimatedMinutes: 30,
       dueDate: variant === "today-compact" ? todayDate : "",
       projectId: "",
       isRecurring: false,
       recurrencePattern: "weekly",
     },
   });
+
+  const isRecurring = form.watch("isRecurring");
+  const showAdvancedFields = variant === "full" || variant === "collapsible";
+  const showDescription = variant !== "today-compact";
 
   useEffect(() => {
     form.setValue("context", mode === "office" ? "work" : "personal");
@@ -52,13 +62,15 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
   const onSubmit = async (values: CreateTaskSchemaValues) => {
     await createTask.mutateAsync({
       ...values,
+      description: values.description?.trim() || undefined,
       projectId: values.projectId || undefined,
+      recurrencePattern: values.isRecurring ? values.recurrencePattern : undefined,
     });
     form.reset({
       title: "",
+      description: "",
       priority: values.priority,
       context: mode === "office" ? "work" : "personal",
-      estimatedMinutes: values.estimatedMinutes,
       dueDate: variant === "today-compact" ? todayDate : "",
       projectId: "",
       isRecurring: false,
@@ -119,70 +131,58 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
           ) : null}
         </div>
 
-        <div title="Set a due date in your local timezone">
+        {showDescription ? (
+          <div className="md:col-span-2">
+            <label htmlFor={`task-description-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+              Description
+            </label>
+            <textarea
+              id={`task-description-${variant}`}
+              className={textareaFieldClassName}
+              placeholder="Optional details, links, or notes"
+              {...form.register("description")}
+            />
+          </div>
+        ) : null}
+
+        <div>
           <label htmlFor={`task-due-date-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
             Due date
           </label>
           <Input id={`task-due-date-${variant}`} type="date" {...form.register("dueDate")} />
-        </div>
-        <div>
-          <label htmlFor={`task-estimated-minutes-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
-            Estimated minutes
-          </label>
-          <Input
-            id={`task-estimated-minutes-${variant}`}
-            type="number"
-            min={5}
-            max={480}
-            title="Estimated effort in minutes (5-480)"
-            aria-describedby={`task-estimated-minutes-help-${variant}`}
-            {...form.register("estimatedMinutes", { valueAsNumber: true })}
-          />
-          <p id={`task-estimated-minutes-help-${variant}`} className="mt-1 text-xs text-muted-foreground">
-            Choose a realistic estimate between 5 and 480 minutes.
-          </p>
         </div>
 
         <div>
           <label htmlFor={`task-priority-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
             Priority
           </label>
-          <select
-            id={`task-priority-${variant}`}
-            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-            {...form.register("priority")}
-          >
-            <option value="low">Low priority</option>
-            <option value="medium">Medium priority</option>
-            <option value="high">High priority</option>
+          <select id={`task-priority-${variant}`} className={selectFieldClassName} {...form.register("priority")}>
+            {TASK_PRIORITIES.map((priority) => (
+              <option key={priority} value={priority}>
+                {PRIORITY_LABELS[priority]}
+              </option>
+            ))}
           </select>
         </div>
+
         <div>
           <label htmlFor={`task-context-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
             Context
           </label>
-          <select
-            id={`task-context-${variant}`}
-            className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-            {...form.register("context")}
-          >
+          <select id={`task-context-${variant}`} className={selectFieldClassName} {...form.register("context")}>
             <option value="work">Work</option>
             <option value="personal">Personal</option>
             <option value="general">General</option>
           </select>
         </div>
 
-        {variant === "full" || variant === "collapsible" ? (
+        {showAdvancedFields ? (
           <>
-            <div title="Optional: link this task to a project">
+            <div>
               <label htmlFor={`task-project-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
                 Project
               </label>
-              <select
-                id={`task-project-${variant}`}
-                className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-                {...form.register("projectId")}
-              >
+              <select id={`task-project-${variant}`} className={selectFieldClassName} {...form.register("projectId")}>
                 <option value="">No project</option>
                 {(projects ?? []).map((project) => (
                   <option key={project.id} value={project.id}>
@@ -192,45 +192,32 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
               </select>
             </div>
 
-            <label className="flex items-center gap-2 rounded-[var(--radius-input)] border border-border bg-surface px-3 py-2 text-sm">
-              <input
-                id={`task-is-recurring-${variant}`}
-                type="checkbox"
-                title="When complete, the next occurrence is auto-created"
-                {...form.register("isRecurring")}
-              />
+            <label className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-input)] border border-border bg-surface px-3 py-2 text-sm">
+              <input id={`task-is-recurring-${variant}`} type="checkbox" {...form.register("isRecurring")} />
               <span>Recurring task</span>
             </label>
-            <div>
-              <label htmlFor={`task-recurrence-pattern-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
-                Recurrence pattern
-              </label>
-              <select
-                id={`task-recurrence-pattern-${variant}`}
-                className="h-11 w-full rounded-[var(--radius-input)] border border-border bg-surface px-3 text-sm"
-                aria-describedby={`task-recurrence-help-${variant}`}
-                {...form.register("recurrencePattern")}
-              >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-              </select>
-              <p id={`task-recurrence-help-${variant}`} className="mt-1 text-xs text-muted-foreground">
-                Applied only when recurring task is enabled.
-              </p>
-            </div>
+
+            {isRecurring ? (
+              <div className="md:col-span-2">
+                <label
+                  htmlFor={`task-recurrence-pattern-${variant}`}
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
+                >
+                  Recurrence pattern
+                </label>
+                <select
+                  id={`task-recurrence-pattern-${variant}`}
+                  className={selectFieldClassName}
+                  {...form.register("recurrencePattern")}
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            ) : null}
           </>
         ) : null}
-
-        {variant === "full" || variant === "collapsible" ? (
-          <p className="md:col-span-2 text-xs text-muted-foreground">
-            Tip: Use recurring tasks for routines like weekly planning, billing reviews, or workouts.
-          </p>
-        ) : (
-          <p className="md:col-span-2 text-xs text-muted-foreground">
-            This compact form is optimized for quick same-day capture.
-          </p>
-        )}
 
         <div className="md:col-span-2">
           <Button type="submit" className="w-full" disabled={createTask.isPending}>

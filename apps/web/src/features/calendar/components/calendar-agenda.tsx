@@ -53,7 +53,7 @@ function AgendaGroup({
   items,
 }: {
   title: string;
-  items: Array<{ id: string; title: string; dueDate: string | null; priority: string; estimatedMinutes: number }>;
+  items: Array<{ id: string; title: string; dueDate: string | null; priority: string }>;
 }) {
   if (items.length === 0) {
     return (
@@ -72,8 +72,6 @@ function AgendaGroup({
           <p className="font-medium">{item.title}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {item.dueDate ? format(new Date(item.dueDate), "EEE, MMM d") : "No due date"} · {item.priority}
-            {" · "}
-            {item.estimatedMinutes}m
           </p>
         </div>
       ))}
