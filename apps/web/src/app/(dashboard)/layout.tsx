@@ -127,7 +127,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         <div className="mt-8 rounded-2xl border border-border bg-surface p-3">
           <p className="text-xs text-muted-foreground">Mode</p>
           <button
-            className="mt-2 w-full rounded-xl border border-border bg-surface-elevated p-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="mt-2 w-full cursor-pointer rounded-xl border border-border bg-surface-elevated p-2 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:cursor-not-allowed"
             onClick={() => void handleModeToggle()}
             disabled={saveMode.isPending}
             aria-pressed={mode === "office"}
