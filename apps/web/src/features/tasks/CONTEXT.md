@@ -19,7 +19,7 @@
   - Today uses compact "today-first" capture.
   - Tasks uses collapsible capture to reduce visual repetition.
 - Tasks page supports two views:
-  - **List** — Slack-style table with sortable columns and row actions.
+  - **List** — Slack-style table with sortable columns, inline status dropdown, and row actions.
   - **Dashboard** — Kanban board grouped by status (To do / In progress / Done).
 - Tasks page tabs: **All** and **Completed** (no separate Active tab).
 - Shared filters and sorting apply to both list and dashboard views (priority, status, context, due date, project, search, sort).

@@ -79,10 +79,7 @@ export function TaskDashboardView({ tasks }: TaskDashboardViewProps) {
                     )}
                   >
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <PriorityBadge priority={task.priority} />
-                        <span className="text-xs capitalize text-muted-foreground">{task.context}</span>
-                      </div>
+                      <PriorityBadge priority={task.priority} />
                       <p className={cn("mt-2 font-medium", task.isCompleted && "line-through text-muted-foreground")}>
                         {task.title}
                       </p>
