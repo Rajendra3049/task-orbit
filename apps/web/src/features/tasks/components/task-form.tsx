@@ -32,6 +32,7 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
   const { data: projects } = useProjects();
   const createTask = useCreateTask();
   const [isOpen, setIsOpen] = useState(variant !== "collapsible");
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const todayDate = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
 
   const form = useForm<CreateTaskSchemaValues>({
@@ -50,7 +51,8 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
 
   const isRecurring = form.watch("isRecurring");
   const showAdvancedFields = variant === "full" || variant === "collapsible";
-  const showDescription = variant !== "today-compact";
+  const showDescription = variant !== "today-compact" || showMoreOptions;
+  const showTodayAdvanced = variant === "today-compact" && showMoreOptions;
 
   useEffect(() => {
     form.setValue("context", mode === "office" ? "work" : "personal");
@@ -76,6 +78,9 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
       isRecurring: false,
       recurrencePattern: "weekly",
     });
+    if (variant === "today-compact") {
+      setShowMoreOptions(false);
+    }
   };
 
   const heading =
@@ -217,6 +222,62 @@ export function TaskForm({ variant = "full" }: TaskFormProps) {
               </div>
             ) : null}
           </>
+        ) : null}
+
+        {showTodayAdvanced ? (
+          <>
+            <div>
+              <label htmlFor={`task-project-${variant}`} className="mb-1 block text-xs font-medium text-muted-foreground">
+                Project
+              </label>
+              <select id={`task-project-${variant}`} className={selectFieldClassName} {...form.register("projectId")}>
+                <option value="">No project</option>
+                {(projects ?? []).map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <label className="flex cursor-pointer items-center gap-2 rounded-[var(--radius-input)] border border-border bg-surface px-3 py-2 text-sm">
+              <input id={`task-is-recurring-${variant}`} type="checkbox" {...form.register("isRecurring")} />
+              <span>Recurring task</span>
+            </label>
+
+            {isRecurring ? (
+              <div className="md:col-span-2">
+                <label
+                  htmlFor={`task-recurrence-pattern-${variant}`}
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
+                >
+                  Recurrence pattern
+                </label>
+                <select
+                  id={`task-recurrence-pattern-${variant}`}
+                  className={selectFieldClassName}
+                  {...form.register("recurrencePattern")}
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+
+        {variant === "today-compact" ? (
+          <div className="md:col-span-2">
+            <button
+              type="button"
+              className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+              onClick={() => setShowMoreOptions((current) => !current)}
+              aria-expanded={showMoreOptions}
+            >
+              {showMoreOptions ? "Hide options" : "More options (description, project, recurring)"}
+            </button>
+          </div>
         ) : null}
 
         <div className="md:col-span-2">

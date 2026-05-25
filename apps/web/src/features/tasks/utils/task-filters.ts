@@ -1,5 +1,6 @@
 import { isAfter, isBefore, isToday, parseISO, startOfDay } from "date-fns";
 import { Task, TaskContext, TaskPriority, TaskStatus } from "@/features/tasks/types/task.types";
+import { PRIORITY_LABELS } from "@/features/tasks/utils/task-priority";
 import { WorkspaceMode } from "@/shared/store/ui-store";
 
 export type TaskView = "all" | "today" | "overdue" | "upcoming" | "completed" | "inbox";
@@ -84,11 +85,49 @@ export function applySearchFilter(tasks: Task[], searchQuery: string) {
   if (!q) {
     return tasks;
   }
-  return tasks.filter(
-    (task) =>
-      task.title.toLowerCase().includes(q) ||
-      (task.description?.toLowerCase().includes(q) ?? false),
-  );
+  return tasks.filter((task) => {
+    const matchesTitle = task.title.toLowerCase().includes(q);
+    const matchesDescription = task.description?.toLowerCase().includes(q) ?? false;
+    const matchesContext = task.context.toLowerCase().includes(q);
+    const matchesPriority =
+      task.priority.includes(q) || PRIORITY_LABELS[task.priority].toLowerCase().includes(q);
+    return matchesTitle || matchesDescription || matchesContext || matchesPriority;
+  });
+}
+
+export type TaskPageVariant = "inbox" | "today";
+
+export function getPageCompletedTasks(tasks: Task[], variant: TaskPageVariant) {
+  const completed = tasks.filter((task) => task.isCompleted);
+  if (variant === "inbox") {
+    return completed.filter((task) => !task.dueDate);
+  }
+  return completed.filter((task) => task.dueDate && isToday(parseISO(task.dueDate)));
+}
+
+/** Filters and sort for section-based pages (inbox/today) — excludes due-date filter. */
+export function applySectionQuery(tasks: Task[], query: TaskListQuery) {
+  let result = [...tasks];
+
+  result = applySearchFilter(result, query.search);
+
+  if (query.priority !== "all") {
+    result = result.filter((task) => task.priority === query.priority);
+  }
+
+  if (query.status !== "all") {
+    result = result.filter((task) => task.status === query.status);
+  }
+
+  if (query.context !== "all") {
+    result = result.filter((task) => task.context === query.context);
+  }
+
+  if (query.projectId !== "all") {
+    result = result.filter((task) => task.projectId === query.projectId);
+  }
+
+  return sortTasks(result, query.sort);
 }
 
 function applyDueFilter(tasks: Task[], due: TaskDueFilter) {

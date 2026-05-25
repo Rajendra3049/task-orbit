@@ -1,6 +1,5 @@
 "use client";
 
-import { format, isPast, isToday, parseISO } from "date-fns";
 import { CheckCircle2, Circle, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -11,6 +10,7 @@ import { TaskEditDialog } from "@/features/tasks/components/task-edit-dialog";
 import { useProjects } from "@/features/projects/hooks/use-projects";
 import { useDeleteTask, useToggleTaskCompletion, useUpdateTask } from "@/features/tasks/hooks/use-tasks";
 import { Task, TaskStatus } from "@/features/tasks/types/task.types";
+import { dueDateClassName, formatDueDateShort } from "@/features/tasks/utils/task-dates";
 import { selectFieldClassName } from "@/features/tasks/utils/task-priority";
 import { STATUS_LABELS, STATUS_STYLES, TASK_STATUSES } from "@/features/tasks/utils/task-status";
 import { cn } from "@/shared/lib/utils";
@@ -29,21 +29,6 @@ const MENU_WIDTH = 152;
 const MENU_HEIGHT = 88;
 
 const compactSelectClassName = `${selectFieldClassName} h-8 min-w-[132px] py-1 text-xs font-medium`;
-
-function formatDueDate(dueDate: string | null) {
-  if (!dueDate) return "—";
-  const date = parseISO(dueDate);
-  if (isToday(date)) return "Today";
-  return format(date, "MMM d, yyyy");
-}
-
-function dueDateClassName(dueDate: string | null, isCompleted: boolean) {
-  if (!dueDate || isCompleted) return "text-muted-foreground";
-  const date = parseISO(dueDate);
-  if (isPast(date) && !isToday(date)) return "text-danger font-medium";
-  if (isToday(date)) return "text-warning font-medium";
-  return "text-muted-foreground";
-}
 
 export function TaskTableView({ tasks }: TaskTableViewProps) {
   const { data: projects } = useProjects();
@@ -203,7 +188,7 @@ export function TaskTableView({ tasks }: TaskTableViewProps) {
                     </select>
                   </td>
                   <td className={cn("px-4 py-3", dueDateClassName(task.dueDate, task.isCompleted))}>
-                    {formatDueDate(task.dueDate)}
+                    {formatDueDateShort(task.dueDate)}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {task.projectId ? projectNameById.get(task.projectId) ?? "—" : "—"}

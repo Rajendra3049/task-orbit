@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import { useProjects } from "@/features/projects/hooks/use-projects";
 import { useTasks } from "@/features/tasks/hooks/use-tasks";
 import { TaskCard } from "@/features/tasks/components/task-card";
 import { applyModeFilter, applySearchFilter, filterByView, TaskView } from "@/features/tasks/utils/task-filters";
@@ -15,7 +17,14 @@ type TaskListProps = {
 
 export function TaskList({ heading = "Task list", view = "all", searchQuery = "" }: TaskListProps) {
   const { data, isLoading, isError } = useTasks();
+  const { data: projects } = useProjects();
   const mode = useUiStore((state) => state.mode);
+
+  const projectNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    (projects ?? []).forEach((project) => map.set(project.id, project.name));
+    return map;
+  }, [projects]);
 
   if (isLoading) {
     return (
@@ -54,7 +63,7 @@ export function TaskList({ heading = "Task list", view = "all", searchQuery = ""
             Go to inbox
           </Link>
           <Link href="/tasks" className="rounded-lg border border-border bg-surface px-3 py-2 text-sm hover:bg-surface-elevated">
-            Create task
+            View all tasks
           </Link>
         </div>
       </Card>
@@ -63,10 +72,17 @@ export function TaskList({ heading = "Task list", view = "all", searchQuery = ""
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold">{heading}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{heading}</h2>
+        <span className="rounded-full bg-surface px-2 py-0.5 text-xs text-muted-foreground">{visibleTasks.length}</span>
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
         {visibleTasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            projectName={task.projectId ? projectNameById.get(task.projectId) : null}
+          />
         ))}
       </div>
     </section>

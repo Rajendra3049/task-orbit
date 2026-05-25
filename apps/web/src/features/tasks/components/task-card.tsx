@@ -1,58 +1,118 @@
 "use client";
 
-import { format } from "date-fns";
 import { CheckCircle2, Circle, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PriorityBadge } from "@/features/tasks/components/priority-badge";
 import { TaskEditDialog } from "@/features/tasks/components/task-edit-dialog";
-import { useDeleteTask, useToggleTaskCompletion } from "@/features/tasks/hooks/use-tasks";
-import { Task } from "@/features/tasks/types/task.types";
+import { useDeleteTask, useToggleTaskCompletion, useUpdateTask } from "@/features/tasks/hooks/use-tasks";
+import { Task, TaskStatus } from "@/features/tasks/types/task.types";
+import { dueDateClassName, formatDueDate } from "@/features/tasks/utils/task-dates";
+import { selectFieldClassName } from "@/features/tasks/utils/task-priority";
+import { STATUS_LABELS, STATUS_STYLES, TASK_STATUSES } from "@/features/tasks/utils/task-status";
+import { cn } from "@/shared/lib/utils";
 
 type TaskCardProps = {
   task: Task;
+  projectName?: string | null;
 };
 
-export function TaskCard({ task }: TaskCardProps) {
+const compactSelectClassName = `${selectFieldClassName} h-8 min-w-[120px] py-1 text-xs font-medium`;
+
+export function TaskCard({ task, projectName }: TaskCardProps) {
   const toggleTask = useToggleTaskCompletion();
+  const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
 
   const handleDelete = () => {
-    const shouldDelete = window.confirm("Delete this task? This action cannot be undone.");
+    const shouldDelete = window.confirm(`Delete "${task.title}"? This action cannot be undone.`);
     if (!shouldDelete) return;
     deleteTask.mutate(task.id);
   };
 
+  const handleStatusChange = (status: TaskStatus) => {
+    if (task.status === status) return;
+    setIsUpdatingStatus(true);
+    updateTask.mutate(
+      { taskId: task.id, payload: { status } },
+      { onSettled: () => setIsUpdatingStatus(false) },
+    );
+  };
+
   return (
     <>
-      <Card className="space-y-3 p-4">
+      <Card className="space-y-3 p-4 transition-colors hover:border-primary/30">
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-2">
-            <p className="text-sm uppercase tracking-wide text-muted-foreground">{task.context}</p>
-            <h3 className={`text-base font-semibold ${task.isCompleted ? "line-through text-muted-foreground" : ""}`}>
-              {task.title}
-            </h3>
-            {task.description ? <p className="text-sm text-muted-foreground line-clamp-2">{task.description}</p> : null}
+          <div className="min-w-0 flex-1 space-y-2">
+            <button
+              type="button"
+              className="cursor-pointer text-left"
+              onClick={() => setIsEditOpen(true)}
+            >
+              <h3
+                className={cn(
+                  "text-base font-semibold hover:text-primary",
+                  task.isCompleted && "line-through text-muted-foreground",
+                )}
+              >
+                {task.title}
+              </h3>
+            </button>
+            {task.description ? (
+              <p className="line-clamp-2 text-sm text-muted-foreground">{task.description}</p>
+            ) : null}
           </div>
           <PriorityBadge priority={task.priority} />
         </div>
 
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            Due {task.dueDate ? format(new Date(task.dueDate), "EEE, MMM d") : "No due date"}
-            {task.isRecurring ? ` · recurring ${task.recurrencePattern}` : ""}
+        <div className="flex flex-wrap items-center gap-2">
+          <label htmlFor={`task-card-status-${task.id}`} className="sr-only">
+            Status for {task.title}
+          </label>
+          <select
+            id={`task-card-status-${task.id}`}
+            className={cn(compactSelectClassName, STATUS_STYLES[task.status])}
+            value={task.status}
+            disabled={isUpdatingStatus}
+            onClick={(event) => event.stopPropagation()}
+            onChange={(event) => handleStatusChange(event.target.value as TaskStatus)}
+          >
+            {TASK_STATUSES.map((status) => (
+              <option key={status} value={status}>
+                {STATUS_LABELS[status]}
+              </option>
+            ))}
+          </select>
+
+          {projectName ? (
+            <span className="rounded-md border border-border bg-surface px-2 py-0.5 text-xs text-muted-foreground">
+              {projectName}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="flex items-center justify-between gap-2">
+          <p className={cn("text-xs", dueDateClassName(task.dueDate, task.isCompleted))}>
+            {formatDueDate(task.dueDate)}
+            {task.isRecurring ? ` · Recurring ${task.recurrencePattern}` : ""}
           </p>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setIsEditOpen(true)} aria-label="Edit task">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsEditOpen(true)}
+              aria-label={`Edit ${task.title}`}
+            >
               <Pencil className="size-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => toggleTask.mutate(task.id)}
-              aria-label={task.isCompleted ? "Mark task as pending" : "Mark task as complete"}
+              aria-label={task.isCompleted ? "Mark task as incomplete" : "Mark task as complete"}
             >
               {task.isCompleted ? (
                 <CheckCircle2 className="size-4 text-success" />
@@ -65,7 +125,7 @@ export function TaskCard({ task }: TaskCardProps) {
               size="icon"
               title="Delete this task permanently"
               onClick={handleDelete}
-              aria-label="Delete task"
+              aria-label={`Delete ${task.title}`}
             >
               <Trash2 className="size-4 text-danger" />
             </Button>
