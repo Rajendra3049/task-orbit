@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useProjects } from "@/features/projects/hooks/use-projects";
 import { useDeleteTask, useUpdateTask } from "@/features/tasks/hooks/use-tasks";
@@ -44,6 +43,7 @@ export function TaskEditDialog({ task, onClose }: TaskEditDialogProps) {
   });
 
   const isRecurring = form.watch("isRecurring");
+  const isDirty = form.formState.isDirty;
 
   useEffect(() => {
     if (!task) return;
@@ -89,8 +89,17 @@ export function TaskEditDialog({ task, onClose }: TaskEditDialogProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="task-edit-title">
-      <Card className="max-h-[90vh] w-full max-w-2xl overflow-y-auto space-y-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 p-4 backdrop-blur-md"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="task-edit-title"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[var(--radius-card)] border border-border bg-background-secondary p-5 text-foreground shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
+        onClick={(event) => event.stopPropagation()}
+      >
         <div className="flex items-center justify-between">
           <h2 id="task-edit-title" className="text-lg font-semibold">
             Edit task
@@ -100,7 +109,7 @@ export function TaskEditDialog({ task, onClose }: TaskEditDialogProps) {
           </Button>
         </div>
 
-        <form className="grid gap-3 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="md:col-span-2">
             <label htmlFor="edit-task-title" className="mb-1 block text-xs font-medium text-muted-foreground">
               Title
@@ -195,7 +204,7 @@ export function TaskEditDialog({ task, onClose }: TaskEditDialogProps) {
           ) : null}
 
           <div className="flex flex-wrap gap-2 md:col-span-2">
-            <Button type="submit" disabled={updateTask.isPending}>
+            <Button type="submit" disabled={updateTask.isPending || !isDirty}>
               {updateTask.isPending ? "Saving..." : "Save changes"}
             </Button>
             <Button type="button" variant="ghost" onClick={onClose}>
@@ -206,7 +215,7 @@ export function TaskEditDialog({ task, onClose }: TaskEditDialogProps) {
             </Button>
           </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

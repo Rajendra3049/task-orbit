@@ -21,5 +21,7 @@
 - Tasks page supports two views:
   - **List** — Slack-style table with sortable columns and row actions.
   - **Dashboard** — Kanban board grouped by status (To do / In progress / Done).
+- Tasks page tabs: **All** and **Completed** (no separate Active tab).
+- Shared filters and sorting apply to both list and dashboard views (priority, status, context, due date, project, search, sort).
 - Recurrence pattern is shown only when recurring is enabled.
 - Full edit/delete is available via the task edit dialog from list, dashboard, and cards.

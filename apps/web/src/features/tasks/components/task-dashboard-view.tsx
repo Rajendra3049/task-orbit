@@ -1,7 +1,7 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { CheckCircle2, Circle, Pencil } from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -63,39 +63,39 @@ export function TaskDashboardView({ tasks }: TaskDashboardViewProps) {
                 tasksByStatus[column.status].map((task) => (
                   <div
                     key={task.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open task ${task.title}`}
+                    onClick={() => setEditingTask(task)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setEditingTask(task);
+                      }
+                    }}
                     className={cn(
-                      "rounded-xl border border-border bg-surface p-3 shadow-sm transition hover:border-primary/40",
+                      "cursor-pointer rounded-xl border border-border bg-surface p-3 shadow-sm transition hover:border-primary/40 hover:bg-surface-elevated/60",
                       task.isCompleted && "opacity-80",
                     )}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <PriorityBadge priority={task.priority} />
-                          <span className="text-xs capitalize text-muted-foreground">{task.context}</span>
-                        </div>
-                        <button
-                          type="button"
-                          className="mt-2 cursor-pointer text-left font-medium"
-                          onClick={() => setEditingTask(task)}
-                        >
-                          <span className={cn(task.isCompleted && "line-through text-muted-foreground")}>{task.title}</span>
-                        </button>
-                        {task.description ? (
-                          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>
-                        ) : null}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <PriorityBadge priority={task.priority} />
+                        <span className="text-xs capitalize text-muted-foreground">{task.context}</span>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Edit task"
-                        onClick={() => setEditingTask(task)}
-                      >
-                        <Pencil className="size-3.5" />
-                      </Button>
+                      <p className={cn("mt-2 font-medium", task.isCompleted && "line-through text-muted-foreground")}>
+                        {task.title}
+                      </p>
+                      {task.description ? (
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>
+                      ) : null}
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between gap-2">
+                    <div
+                      className="mt-3 flex items-center justify-between gap-2"
+                      onClick={(event) => event.stopPropagation()}
+                      onKeyDown={(event) => event.stopPropagation()}
+                    >
                       <p className="text-xs text-muted-foreground">
                         {task.dueDate ? format(parseISO(task.dueDate), "MMM d") : "No due date"}
                         {task.isRecurring ? ` · ${task.recurrencePattern}` : ""}

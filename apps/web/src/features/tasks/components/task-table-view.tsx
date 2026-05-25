@@ -87,11 +87,12 @@ export function TaskTableView({ tasks }: TaskTableViewProps) {
                 <tr
                   key={task.id}
                   className={cn(
-                    "border-b border-border/70 transition-colors hover:bg-surface-elevated/40",
+                    "cursor-pointer border-b border-border/70 transition-colors hover:bg-surface-elevated/40",
                     task.isCompleted && "opacity-70",
                   )}
+                  onClick={() => setEditingTask(task)}
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={(event) => event.stopPropagation()}>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -106,21 +107,15 @@ export function TaskTableView({ tasks }: TaskTableViewProps) {
                     </Button>
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      className="cursor-pointer text-left"
-                      onClick={() => setEditingTask(task)}
-                    >
-                      <p className={cn("font-medium", task.isCompleted && "line-through text-muted-foreground")}>
-                        {task.title}
-                      </p>
-                      {task.description ? (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{task.description}</p>
-                      ) : null}
-                      {task.isRecurring ? (
-                        <p className="mt-0.5 text-xs text-muted-foreground">Recurring · {task.recurrencePattern}</p>
-                      ) : null}
-                    </button>
+                    <p className={cn("font-medium", task.isCompleted && "line-through text-muted-foreground")}>
+                      {task.title}
+                    </p>
+                    {task.description ? (
+                      <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{task.description}</p>
+                    ) : null}
+                    {task.isRecurring ? (
+                      <p className="mt-0.5 text-xs text-muted-foreground">Recurring · {task.recurrencePattern}</p>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3">
                     <PriorityBadge priority={task.priority} />
@@ -137,7 +132,7 @@ export function TaskTableView({ tasks }: TaskTableViewProps) {
                   <td className="px-4 py-3 text-muted-foreground">
                     {task.projectId ? projectNameById.get(task.projectId) ?? "—" : "—"}
                   </td>
-                  <td className="relative px-4 py-3">
+                  <td className="relative px-4 py-3" onClick={(event) => event.stopPropagation()}>
                     <Button
                       variant="ghost"
                       size="icon"
