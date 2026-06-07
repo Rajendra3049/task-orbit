@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env, hasSupabaseEnv } from "@/config/env";
+import { supabaseClientOptions } from "@/services/supabase/options";
 
 const protectedPrefixes = [
   "/dashboard",
@@ -29,6 +30,7 @@ export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+    ...supabaseClientOptions,
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -41,9 +43,14 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    ({
+      data: { user },
+    } = await supabase.auth.getUser());
+  } catch {
+    return response;
+  }
 
   const { pathname } = request.nextUrl;
   const shouldProtect = isProtectedPath(pathname);

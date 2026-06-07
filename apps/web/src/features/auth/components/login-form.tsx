@@ -17,6 +17,21 @@ type LoginFormProps = {
 
 type AuthMode = "sign-in" | "create-account";
 
+function getAuthErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+    if (message.includes("failed to fetch") || message.includes("network")) {
+      return "Cannot reach Supabase. Check your internet connection and confirm your Supabase project is active.";
+    }
+    if (message.includes("database error")) {
+      return "Supabase database error. Restore your project in the Supabase dashboard, then run apps/web/supabase/schema.sql.";
+    }
+    return error.message;
+  }
+
+  return fallback;
+}
+
 export function LoginForm({
   nextPath,
   initialMode = "sign-in",
@@ -95,20 +110,26 @@ export function LoginForm({
     }
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    setIsLoading(false);
 
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast.error(getAuthErrorMessage(error, error.message));
+        return;
+      }
+
+      toast.success("Signed in successfully.");
+      router.push(nextPath);
+      router.refresh();
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error, "Unable to sign in right now."));
+    } finally {
+      setIsLoading(false);
     }
-
-    toast.success("Signed in successfully.");
-    router.push(nextPath);
-    router.refresh();
   };
 
   const createAccount = async () => {
@@ -123,50 +144,55 @@ export function LoginForm({
 
     setIsLoading(true);
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: {
-          full_name: fullName.trim(),
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            full_name: fullName.trim(),
+          },
         },
-      },
-    });
-    setIsLoading(false);
+      });
 
-    if (error) {
-      if (error.message.toLowerCase().includes("already registered")) {
-        toast.error("This email is already registered. Please sign in instead.");
+      if (error) {
+        if (error.message.toLowerCase().includes("already registered")) {
+          toast.error("This email is already registered. Please sign in instead.");
+          setMode("sign-in");
+          setPassword("");
+          return;
+        }
+        toast.error(getAuthErrorMessage(error, error.message));
+        return;
+      }
+
+      const isExistingUserWithoutNewIdentity =
+        !!data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0;
+
+      if (isExistingUserWithoutNewIdentity) {
+        toast.error("This email is already in use. Please sign in with your existing account.");
         setMode("sign-in");
         setPassword("");
         return;
       }
-      toast.error(error.message);
-      return;
+
+      if (data.user && data.user.id) {
+        await supabase.from("profiles").upsert({
+          id: data.user.id,
+          full_name: fullName.trim(),
+        });
+      }
+
+      const verifyUrl = `/auth/verify-email?email=${encodeURIComponent(
+        email.trim(),
+      )}&name=${encodeURIComponent(fullName.trim())}&next=${encodeURIComponent(nextPath)}`;
+      router.push(verifyUrl);
+    } catch (error) {
+      toast.error(getAuthErrorMessage(error, "Unable to create your account right now."));
+    } finally {
+      setIsLoading(false);
     }
-
-    const isExistingUserWithoutNewIdentity =
-      !!data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0;
-
-    if (isExistingUserWithoutNewIdentity) {
-      toast.error("This email is already in use. Please sign in with your existing account.");
-      setMode("sign-in");
-      setPassword("");
-      return;
-    }
-
-    if (data.user && data.user.id) {
-      await supabase.from("profiles").upsert({
-        id: data.user.id,
-        full_name: fullName.trim(),
-      });
-    }
-
-    const verifyUrl = `/auth/verify-email?email=${encodeURIComponent(
-      email.trim(),
-    )}&name=${encodeURIComponent(fullName.trim())}&next=${encodeURIComponent(nextPath)}`;
-    router.push(verifyUrl);
   };
 
   return (
