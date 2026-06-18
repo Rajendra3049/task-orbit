@@ -18,14 +18,22 @@ type LoginFormProps = {
 type AuthMode = "sign-in" | "create-account";
 
 function getAuthErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof Error) {
+  if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
     const message = error.message.toLowerCase();
-    if (message.includes("failed to fetch") || message.includes("network")) {
+
+    if (message.includes("invalid login credentials") || message.includes("invalid credentials")) {
+      return "Incorrect email or password. If you are new, switch to Create account first.";
+    }
+    if (message.includes("email not confirmed")) {
+      return "Please verify your email before signing in. Check your inbox for the confirmation link.";
+    }
+    if (message.includes("failed to fetch") || message.includes("network") || message.includes("abort")) {
       return "Cannot reach Supabase. Check your internet connection and confirm your Supabase project is active.";
     }
     if (message.includes("database error")) {
       return "Supabase database error. Restore your project in the Supabase dashboard, then run apps/web/supabase/schema.sql.";
     }
+
     return error.message;
   }
 
